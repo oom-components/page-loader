@@ -7,6 +7,7 @@
 }
 .elements li {
 	margin: 5px;
+	height: 250px;
 }
 .pagination a {
 	display: inline-block;

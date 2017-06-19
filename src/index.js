@@ -2,23 +2,34 @@ import d from 'd_js';
 import polyfill from 'intersection-observer';
 
 export default class PageLoader {
-    constructor(resultSelector, buttonSelector) {
-        this.resultSelector = resultSelector;
-        this.result = d.get(resultSelector);
-        this.buttonSelector = buttonSelector;
-        this.button = d.get(buttonSelector);
+    constructor(resultSelector, buttonSelector, context) {
+        context = context || document;
 
-        this.pages = [
-            {
-                title: document.title,
-                url: document.location.href,
-                target: null
-            }
-        ];
+        this.events = {};
+
+        this.resultSelector = resultSelector;
+        this.result = context.querySelector(resultSelector);
+
+        this.buttonSelector = buttonSelector;
+        this.button = context.querySelector(buttonSelector);
+
+        this.currentPage = {
+            title: document.title,
+            url: document.location.href,
+            target: null
+        };
+
+        this.pages = [this.currentPage];
 
         d.on('click', this.button, event => {
+            const url = this.button.getAttribute('href');
+
             event.preventDefault();
-            this.loadPage(this.button.getAttribute('href'));
+
+            this.loadPage(url).catch(err => {
+                console.error(err);
+                document.location = url;
+            });
         });
 
         this.observer = new IntersectionObserver(entries => {
@@ -33,15 +44,44 @@ export default class PageLoader {
                     } else if (isPreviousPage(entry)) {
                         this.changePage(page.previous);
                     }
-                } else {
-                    console.log(entry);
                 }
             });
         });
     }
 
+    on(event, callback) {
+        if (!this.events[event]) {
+            this.events[event] = [];
+        }
+
+        this.events[event].push(callback);
+    }
+
+    off(event, callback) {
+        if (this.events[event]) {
+            if (!callback) {
+                delete this.events[event];
+            } else {
+                const index = this.events[event].indexOf(callback);
+
+                if (index !== -1) {
+                    this.events[event].splice(index, 1);
+                }
+            }
+        }
+    }
+
+    trigger(event, args) {
+        if (this.events[event]) {
+            args = args || [];
+            this.events[event].forEach(callback => callback.apply(this, args));
+        }
+    }
+
     loadPage(url) {
-        fetch(url).then(response => response.text()).then(html => {
+        this.trigger('beforeLoadPage', [url]);
+
+        return fetch(url).then(response => response.text()).then(html => {
             const doc = document.implementation.createHTMLDocument();
             doc.documentElement.innerHTML = html;
 
@@ -64,6 +104,7 @@ export default class PageLoader {
 
             this.pages.push(page);
             this.observer.observe(page.target);
+            this.trigger('loadPage', [page]);
             this.changePage(page);
 
             if (button) {
@@ -82,8 +123,17 @@ export default class PageLoader {
     }
 
     changePage(page) {
-        history.replaceState({}, page.title, page.url);
-        document.title = page.title;
+        if (page !== this.currentPage) {
+            if (this.pages.length === 2) {
+                history.pushState({}, page.title, page.url);
+            } else {
+                history.replaceState({}, page.title, page.url);
+            }
+
+            document.title = page.title;
+            this.currentPage = page;
+            this.trigger('changePage', [page]);
+        }
     }
 }
 
