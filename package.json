@@ -1,6 +1,6 @@
 {
   "name": "pw-page-loader",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Ajax page loader",
   "main": "index.js",
   "scripts": {
