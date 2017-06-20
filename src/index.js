@@ -94,7 +94,7 @@ export default class PageLoader {
             if (last === this.button || last.contains(this.button)) {
                 d
                     .getAll(result.children)
-                    .filter(child => !child.contains(button))
+                    .filter(child => child !== button && !child.contains(button))
                     .forEach(child => this.result.insertBefore(child, last));
             } else {
                 d
