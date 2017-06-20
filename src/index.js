@@ -2,9 +2,7 @@ import d from 'd_js';
 import polyfill from 'intersection-observer';
 
 export default class PageLoader {
-    constructor(resultSelector, buttonSelector, context) {
-        context = context || document;
-
+    constructor(resultSelector, buttonSelector, context = document) {
         this.events = {};
 
         this.resultSelector = resultSelector;
@@ -62,9 +60,8 @@ export default class PageLoader {
         }
     }
 
-    trigger(event, args) {
+    trigger(event, args = []) {
         if (this.events[event]) {
-            args = args || [];
             this.events[event].forEach(callback => callback.apply(this, args));
         }
     }
