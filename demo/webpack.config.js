@@ -7,6 +7,7 @@ module.exports = {
         filename: 'demo/script.dist.js'
     },
     devtool: 'source-map',
+    node: false,
     module: {
         rules: [
             {
