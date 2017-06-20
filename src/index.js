@@ -21,16 +21,7 @@ export default class PageLoader {
 
         this.pages = [this.currentPage];
 
-        d.on('click', this.button, event => {
-            const url = this.button.getAttribute('href');
-
-            event.preventDefault();
-
-            this.loadPage(url).catch(err => {
-                console.error(err);
-                document.location = url;
-            });
-        });
+        d.on('click', this.button, onClick.bind(this));
 
         this.observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
@@ -98,9 +89,17 @@ export default class PageLoader {
                 previous: this.pages[this.pages.length - 1]
             };
 
-            d
-                .getAll(result.children)
-                .forEach(child => this.result.appendChild(child));
+            //if the button is the last element of the result
+            const last = this.result.lastElementChild;
+            if (last === this.button || last.contains(this.button)) {
+                d
+                    .getAll(result.children)
+                    .forEach(child => this.result.insertBefore(child, last));
+            } else {
+                d
+                    .getAll(result.children)
+                    .forEach(child => this.result.appendChild(child));
+            }
 
             this.pages.push(page);
             this.observer.observe(page.target);
@@ -110,10 +109,7 @@ export default class PageLoader {
             if (button) {
                 this.button.parentNode.replaceChild(button, this.button);
 
-                d.on('click', button, event => {
-                    event.preventDefault();
-                    this.loadPage(this.button.getAttribute('href'));
-                });
+                d.on('click', button, onClick.bind(this));
             } else {
                 this.button.parentNode.removeChild(this.button);
             }
@@ -135,6 +131,21 @@ export default class PageLoader {
             this.trigger('changePage', [page]);
         }
     }
+}
+
+function onClick(event) {
+    const url = this.button.getAttribute('href');
+
+    if (!url) {
+        return;
+    }
+
+    event.preventDefault();
+
+    this.loadPage(url).catch(err => {
+        console.error(err);
+        document.location = url;
+    });
 }
 
 function isNextPage(entry) {
