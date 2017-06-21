@@ -102,7 +102,7 @@ export default class PageLoader {
             this.pages.push(page);
             this.observer.observe(page.target);
             this.trigger('loadPage', [page]);
-            this.changePage(page);
+            this.changePage(page, true);
 
             if (button) {
                 this.button.parentNode.replaceChild(button, this.button);
@@ -116,9 +116,9 @@ export default class PageLoader {
         });
     }
 
-    changePage(page) {
+    changePage(page, isNew = false) {
         if (page !== this.currentPage) {
-            if (this.pages.length === 2) {
+            if (isNew) {
                 history.pushState({}, page.title, page.url);
             } else {
                 history.replaceState({}, page.title, page.url);
