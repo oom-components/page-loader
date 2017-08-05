@@ -4,11 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## UNRELEASED
+## 0.2.4 - 2017-08-05
 
 ### Changed
 
 * Improved the history on load new pages. Use `pushState` on load new pages and `replaceState` on change to a previous page.
+* Upgraded `d_js` to 2.0.
+* Upgraded `intersection-observer` to 0.4.0.
 
 ## 0.2.3 - 2017-06-20
 

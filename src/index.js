@@ -19,7 +19,9 @@ export default class PageLoader {
 
         this.pages = [this.currentPage];
 
-        d.on('click', this.button, onClick.bind(this));
+        if (this.button) {
+            d.on('click', this.button, onClick.bind(this));
+        }
 
         this.observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
@@ -89,14 +91,15 @@ export default class PageLoader {
             //if the button is the last element of the result
             const last = this.result.lastElementChild;
             if (last === this.button || last.contains(this.button)) {
-                d
-                    .getAll(result.children)
-                    .filter(child => child !== button && !child.contains(button))
-                    .forEach(child => this.result.insertBefore(child, last));
+                toArray(result.children)
+                    .filter(
+                        child => child !== button && !child.contains(button)
+                    )
+                    .forEach(child => last.before(child));
             } else {
-                d
-                    .getAll(result.children)
-                    .forEach(child => this.result.appendChild(child));
+                toArray(result.children).forEach(child =>
+                    this.result.append(child)
+                );
             }
 
             this.pages.push(page);
@@ -105,11 +108,11 @@ export default class PageLoader {
             this.changePage(page, true);
 
             if (button) {
-                this.button.parentNode.replaceChild(button, this.button);
+                this.button.replaceWith(button);
 
                 d.on('click', button, onClick.bind(this));
             } else {
-                this.button.parentNode.removeChild(this.button);
+                this.button.remove();
             }
 
             this.button = button;
@@ -152,4 +155,8 @@ function isNextPage(entry) {
 
 function isPreviousPage(entry) {
     return !entry.isIntersecting && entry.boundingClientRect.top > 0;
+}
+
+function toArray(el) {
+    return Array.prototype.slice.call(el);
 }

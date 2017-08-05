@@ -1,6 +1,6 @@
 {
   "name": "pw-page-loader",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Ajax page loader",
   "main": "index.js",
   "scripts": {
@@ -35,7 +35,7 @@
     "webpack": "^3.0.0"
   },
   "dependencies": {
-    "d_js": "^1.9.0",
-    "intersection-observer": "^0.3.0"
+    "d_js": "^2.0.0",
+    "intersection-observer": "^0.4.0"
   }
 }
