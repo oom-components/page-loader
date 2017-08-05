@@ -14,7 +14,10 @@ module.exports = {
                 test: /\.js$/,
                 exclude: path.join(__dirname, '../node_modules/'),
                 use: {
-                    loader: 'babel-loader'
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ['es2015']
+                    }
                 }
             }
         ]
