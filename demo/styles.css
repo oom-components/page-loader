@@ -1,19 +1,22 @@
-.elements {
-	display: flex;
-	flex-wrap: wrap;
-	list-style: none;
-	margin: 0;
-	padding: 10px;
+ul.content {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0;
+    padding: 10px;
 }
 .elements li {
-	margin: 5px;
-	height: 250px;
+    margin: 5px;
+    height: 250px;
 }
-.pagination a {
-	display: inline-block;
-	padding: 1em;
-	background: lightgray;
+.menu a {
+    display: inline-block;
+    padding: 1em;
+    background: lightgray;
+}
+.menu a:focus {
+    background: gray;
 }
 img {
-	display: block;
+    display: block;
 }
