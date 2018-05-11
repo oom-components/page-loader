@@ -1,41 +1,39 @@
 {
-  "name": "pw-page-loader",
-  "version": "0.2.4",
+  "name": "@oom/page-loader",
+  "version": "1.0.0",
   "description": "Ajax page loader",
-  "main": "index.js",
+  "main": "src/page-loader.js",
   "scripts": {
     "start": "webpack --config demo/webpack.config.js --watch & http-server demo -c-1",
-    "compile": "babel src -d ./ --presets es2015",
-    "prettier": "prettier src/*.js demo/script.js --single-quote --tab-width 4 --write",
-    "prepublish": "npm run compile"
+    "prettier": "prettier src/*.jsm demo/script.jsm --single-quote --tab-width 4 --write",
+    "gh-pages": "webpack --config demo/webpack.config.js && gh-pages -d demo"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/progressive-web-components/page-loader.git"
+    "url": "git+https://github.com/oom-components/page-loader.git"
   },
   "keywords": [
     "progressive",
     "web",
     "component",
     "ajax",
-    "page-loader"
+    "page-loader",
+    "es6"
   ],
   "author": "Oscar Otero <oom@oscarotero.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/progressive-web-components/page-loader/issues"
+    "url": "https://github.com/oom-components/page-loader/issues"
   },
-  "homepage": "https://github.com/progressive-web-components/page-loader#readme",
+  "homepage": "https://github.com/oom-components/page-loader#readme",
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-core": "^6.24.1",
-    "babel-loader": "^7.0.0",
-    "babel-preset-es2015": "^6.24.1",
-    "prettier": "^1.4.1",
-    "webpack": "^3.0.0"
-  },
-  "dependencies": {
-    "d_js": "^2.0.0",
-    "intersection-observer": "^0.4.0"
+    "@babel/core": "^7.0.0-beta.46",
+    "@babel/preset-env": "^7.0.0-beta.46",
+    "babel-loader": "^8.0.0-beta.2",
+    "gh-pages": "^1.1.0",
+    "http-server": "^0.11.1",
+    "prettier": "^1.12.1",
+    "webpack": "^4.1.0",
+    "webpack-cli": "^2.1.2"
   }
 }

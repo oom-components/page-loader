@@ -1,4 +1,3 @@
 /node_modules
-/demo/*.dist.*
-/yarn.lock
-/*.js
+/demo/script.js
+/package-lock.json

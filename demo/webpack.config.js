@@ -2,21 +2,20 @@ const path = require('path');
 
 module.exports = {
     context: __dirname,
-    entry: './script.js',
+    entry: './script.jsm',
     output: {
-        filename: 'demo/script.dist.js'
+        path: __dirname,
+        filename: 'script.js'
     },
-    devtool: 'source-map',
-    node: false,
+    mode: 'development',
     module: {
         rules: [
             {
-                test: /\.js$/,
-                exclude: path.join(__dirname, '../node_modules/'),
+                test: /\.jsm$/,
                 use: {
                     loader: 'babel-loader',
                     options: {
-                        presets: ['es2015']
+                        presets: ['@babel/preset-env']
                     }
                 }
             }
