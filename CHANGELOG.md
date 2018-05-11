@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Rename package to `@oom/page-loader`
 - Changed the file extension to `jsm` for compatibility with native es6 modules
+- Refactored the whole library making it dependency-free, more flexible and universal. Now it's not intended only for pagination, but for any dinamic page loading.
 
 ## [0.2.4] - 2017-08-05
 

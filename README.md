@@ -1,20 +1,21 @@
-# PW Page Loader
+# @oom/page-loader
 
-Javascript library to load pages using ajax and append the result in the current page, in order to create a infinite scrolling. It has the following features:
+Javascript library to load pages using ajax and replace the content in the current page, changing also the title and the url, allowing to create beautiful page transitions. It has the following features:
 
+* No dependencies
+* Superlight. No more than 200 lines of code
 * Follows the progressive enhancement strategy: **if javascript fails, the web page keeps working**
-* Accessible: After load the new page, the history url and title is changed. This allows to copy and share the url.
-* High performance: Use the [Intersection Observer API](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API) (and a [polyfill](https://github.com/WICG/IntersectionObserver/tree/gh-pages/polyfill)) to track the page viewed currently.
+* Built with ES6, so you may need a transpiler for old browser support
 
 ## Install
 
 Requirements:
 
-* NPM or Yarn to install [the package and the dependencies](https://www.npmjs.com/package/pw-page-loader)
-* Webpack (or any other javascript loader)
+* NPM or Yarn to install [the package and the dependencies](https://www.npmjs.com/@oom/page-loader)
+* It uses [the Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) for the http requests, so you can use the [fetch polyfill](https://github.com/github/fetch) to have [support for old browsers](https://caniuse.com/#feat=fetch)
 
 ```sh
-npm install pw-page-loader
+npm install @oom/page-loader
 ```
 
 ## Usage
@@ -24,22 +25,29 @@ npm install pw-page-loader
 Let's start with the following html code:
 
 ```html
-<ul class="images">
-    <li><img src="http://placehold.it/500x300"></li>
-    <li><img src="http://placehold.it/500x300"></li>
-    <li><img src="http://placehold.it/500x300"></li>
-    <li><img src="http://placehold.it/500x300"></li>
-    <li><img src="http://placehold.it/500x300"></li>
-    <li><img src="http://placehold.it/500x300"></li>
-    <li><img src="http://placehold.it/500x300"></li>
-    <li><img src="http://placehold.it/500x300"></li>
-    <li><img src="http://placehold.it/500x300"></li>
-    <li><img src="http://placehold.it/500x300"></li>
-</ul>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Page title</title>
+</head>
+<body>
+    <nav class="menu">
+        <a href="section1.html">Section 1</a>
+        <a href="section2.html">Section 2</a>
+        <a href="section3.html">Section 3</a>
+    </nav>
+    <main class="content">
+        <h1>This is the first section</h1>
 
-<nav class="pagination">
-    <a href="page2.html">Next Page</a>
-</nav>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    </main>
+</body>
+</html>
 ```
 
 ### JS
@@ -47,62 +55,36 @@ Let's start with the following html code:
 Use javascript for a complete experience:
 
 ```js
-import PageLoader from 'pw-page-loader';
+import Navigator from '@oom/page-loader';
 
-//Init the loader
-const loader = new PageLoader('.images', '.pagination a');
+//Create the navigator passing two methods: when the new page is loaded and an error handler
+const nav = new Navigator(pageLoaded, pageError);
 
-//Enable auto-click
-loader.autoClick(true);
-```
+//Attach to the popstate event
+window.onpopstate = () => nav.go(document.location.href);
 
-## API
+//Attach to the click event of the links
+document.querySelectorAll('.menu a').forEach(el =>
+    el.addEventListener('click', e => {
+        nav.go(el.href);
+        e.preventDefault();
+    })
+);
 
-### constructor
+function pageLoaded(page) {
+    page.replaceContent('main') //Replace the <main> element
+        .applyTitle()           //Change the title
+        .applyLocation();       //Change the history location
+}
 
-Create a new instance of `PageLoader`. The arguments are:
-
-* `resultSelector` A string with the css selector to the list of the result
-* `buttonSelector` A string with the css selector to the link to the next page
-* `context` Optional context for the selectors. The default value is `document`.
-
-### on
-
-Register events in the page loader workflow. The available events are:
-
-* `beforeLoadPage` Just before load a new page
-* `loadPage` When a new page has been loaded
-* `changePage` When the current page has changed
-
-```js
-loader.on('beforeLoadPage', url => {
-    console.log('Preparing to load page', url);
-});
-
-loader.on('loadPage', page => {
-    console.log('New page loaded', page);
-});
-
-loader.on('changePage', page => {
-    console.log('The current page is', page);
-});
-```
-
-### off
-
-Unregister one or all callbacks of an event
-
-```js
-//unregister one callback
-loader.on('beforeLoadPage', callback1);
-
-//unregister all callbacks
-loader.on('beforeLoadPage');
+function pageError(err) {
+    console.error(err);
+}
 ```
 
 ## Demo
 
-To run the demo, just clone this repository enter in the directory and execute:
+To run the demo, just clone this repository, enter in the directory and execute:
 
 ```sh
 npm install
@@ -110,3 +92,5 @@ npm start
 ```
 
 You should see something in `http://localhost:8080/`
+
+There's an online demo here: https://oom-components.github.io/page-loader/
