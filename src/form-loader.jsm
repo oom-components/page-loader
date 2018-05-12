@@ -19,9 +19,9 @@ export default class FormLoader extends UrlLoader {
         const options = { method };
         const data = new FormData(this.form);
 
-        if (this.method === 'POST') {
+        if (method === 'POST') {
             options.body = data;
-        } else if (this.method === 'GET') {
+        } else if (method === 'GET') {
             url += '?' + new URLSearchParams(data);
         }
 

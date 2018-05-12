@@ -36,10 +36,14 @@ export default class Page {
         return result;
     }
 
-    replaceContent(target = 'body') {
-        this.querySelector(target, document).replaceWith(
-            this.querySelector(target)
-        );
+    replaceContent(target = 'body', callback = undefined) {
+        const content = this.querySelector(target);
+
+        this.querySelector(target, document).replaceWith(content);
+
+        if (typeof callback === 'function') {
+            callback(content);
+        }
 
         return this;
     }
