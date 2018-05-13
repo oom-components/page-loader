@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Changed the file extension to `jsm` for compatibility with native es6 modules
 - Refactored the whole library making it dependency-free, more flexible and universal. Now it's not intended only for pagination, but for any dinamic page loading.
 
+### Added
+
+- Support for forms
+
 ## [0.2.4] - 2017-08-05
 
 ### Changed

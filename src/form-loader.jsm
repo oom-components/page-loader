@@ -3,28 +3,31 @@ import UrlLoader from './url-loader.jsm';
 
 export default class FormLoader extends UrlLoader {
     constructor(form) {
-        super(form.target);
+        let url = form.target;
+        const method = (form.method || 'GET').toUpperCase();
+
+        if (method === 'GET') {
+            url += '?' + new URLSearchParams(new FormData(form));
+        }
+
+        super(url);
+
+        this.method = method;
         this.form = form;
         this.cache = false;
     }
 
     go() {
-        form.submit();
+        this.form.submit();
     }
 
     fetch() {
-        let url = this.url;
+        const options = { method: this.method };
 
-        const method = (this.form.method || 'GET').toUpperCase();
-        const options = { method };
-        const data = new FormData(this.form);
-
-        if (method === 'POST') {
-            options.body = data;
-        } else if (method === 'GET') {
-            url += '?' + new URLSearchParams(data);
+        if (this.method === 'POST') {
+            options.body = new FormData(this.form);
         }
 
-        return fetch(url, options);
+        return fetch(this.url, options);
     }
 }
