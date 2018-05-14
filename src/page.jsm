@@ -48,6 +48,23 @@ export default class Page {
         return this;
     }
 
+    appendContent(target = 'body', callback = undefined) {
+        const content = Array.from(this.querySelector(target).childNodes);
+        const fragment = document.createDocumentFragment();
+
+        content.forEach(item => fragment.appendChild(item));
+
+        this.querySelector(target, document).append(fragment);
+
+        if (typeof callback === 'function') {
+            content
+                .filter(item => item.nodeType === Node.ELEMENT_NODE)
+                .forEach(callback);
+        }
+
+        return this;
+    }
+
     applyTitle() {
         document.title = this.title;
         return this;
