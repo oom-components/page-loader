@@ -18,6 +18,8 @@ export default class Navigator {
 
     addFilter(callback) {
         this.filters.push(callback);
+
+        return this;
     }
 
     init() {
@@ -38,6 +40,8 @@ export default class Navigator {
         });
 
         window.onpopstate = event => this.go(document.location.href);
+
+        return this;
     }
 
     go(url, ...params) {
