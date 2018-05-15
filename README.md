@@ -57,29 +57,25 @@ Use javascript for a complete experience:
 ```js
 import Navigator from '@oom/page-loader';
 
-//Create the navigator passing two methods: when the new page is loaded and an error handler
-const nav = new Navigator(pageLoaded, pageError);
-
-//Attach to the popstate event
-window.onpopstate = () => nav.go(document.location.href);
-
-//Attach to the click event of the links
-document.querySelectorAll('.menu a').forEach(el =>
-    el.addEventListener('click', e => {
-        nav.go(el.href);
-        e.preventDefault();
-    })
-);
-
-function pageLoaded(page) {
+//Create the navigator passing a callback executed when the new page is loaded
+const nav = new Navigator(page => 
     page.replaceContent('main') //Replace the <main> element
         .applyTitle()           //Change the title
-        .applyLocation();       //Change the history location
-}
+        .applyLocation()        //Change the history location
+);
 
-function pageError(err) {
-    console.error(err);
-}
+//Init the navigation, capturing all clicks in links and form submits
+nav.init();
+
+//Optionally, you can filter links and forms to disable this behaviour
+nav.addFilter(link => !link.classList.contains('no-loader'));
+
+//You can go manually to other url when you want
+nav.go('https//example.com/page2.html');
+
+//Or submit a form via ajax
+const form = document.getElementById('my-form');
+nav.submit(form);
 ```
 
 ## Demo
