@@ -15,10 +15,10 @@ export default class UrlLoader {
         document.location = this.url;
     }
 
-    load() {
+    load(state = {}) {
         if (this.cache && this.html) {
             return new Promise(accept =>
-                accept(Page.createFromHtml(this.html, this.url))
+                accept(Page.createFromHtml(this.html, this.url, state))
             );
         }
 
@@ -33,7 +33,7 @@ export default class UrlLoader {
             .then(res => res.text())
             .then(html => {
                 this.html = this.cache ? html : '';
-                return Page.createFromHtml(html, this.url);
+                return Page.createFromHtml(html, this.url, state);
             });
     }
 }

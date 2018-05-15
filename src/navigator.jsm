@@ -25,7 +25,7 @@ export default class Navigator {
     init() {
         delegate('click', 'a', (event, link) => {
             if (this.filters.every(filter => filter(link, link.href))) {
-                this.go(link.href, link);
+                this.go(link.href, Object.assign({}, link.dataset));
                 event.preventDefault();
             }
         });
@@ -34,44 +34,43 @@ export default class Navigator {
             const url = resolve(form.target);
 
             if (this.filters.every(filter => filter(form, url))) {
-                this.submit(form, form);
+                this.submit(form, Object.assign({}, form.dataset));
                 event.preventDefault();
             }
         });
 
-        window.onpopstate = event => this.go(document.location.href);
+        window.onpopstate = event =>
+            this.go(document.location.href, event.state);
 
         return this;
     }
 
-    go(url, ...params) {
+    go(url, state = {}) {
         url = resolve(url);
 
         if (!this.loaders[url]) {
             this.loaders[url] = new UrlLoader(url);
         }
 
-        return this.load(this.loaders[url], ...params);
+        return this.load(this.loaders[url], state);
     }
 
-    submit(form, ...params) {
-        return this.load(new FormLoader(form), ...params);
+    submit(form, state = {}) {
+        return this.load(new FormLoader(form), state);
     }
 
-    load(loader, ...params) {
-        const promise = loader.load();
+    load(loader, state = {}) {
+        const promise = loader.load(state);
 
         if (this.handler) {
-            return promise
-                .then(page => this.handler(page, ...params))
-                .catch(err => {
-                    if (this.errorHandler) {
-                        this.errorHandler(err);
-                    }
+            return promise.then(page => this.handler(page)).catch(err => {
+                if (this.errorHandler) {
+                    this.errorHandler(err);
+                }
 
-                    console.error(err);
-                    this.loaders[url].go();
-                });
+                console.error(err);
+                this.loaders[url].go();
+            });
         }
 
         return promise;

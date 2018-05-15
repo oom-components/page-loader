@@ -1,15 +1,16 @@
 export default class Page {
-    static createFromHtml(html, url) {
+    static createFromHtml(html, url, state) {
         html = html.trim().replace(/^\<!DOCTYPE html\>/i, '');
         const doc = document.implementation.createHTMLDocument();
         doc.documentElement.innerHTML = html;
 
-        return new Page(url, doc);
+        return new Page(url, doc, state);
     }
 
-    constructor(url, dom) {
+    constructor(url, dom, state) {
         this.url = url;
         this.dom = dom;
+        this.state = state || {};
     }
 
     get title() {
@@ -76,9 +77,9 @@ export default class Page {
         }
 
         if (replace) {
-            history.replaceState({}, null, this.url);
+            history.replaceState(this.state, null, this.url);
         } else {
-            history.pushState({}, null, this.url);
+            history.pushState(this.state, null, this.url);
         }
 
         return this;
