@@ -14,7 +14,7 @@ Other libraries with a similar purpose are [barba.js](https://github.com/luruke/
 Requirements:
 
 * NPM or Yarn to install [the package and the dependencies](https://www.npmjs.com/@oom/page-loader)
-* It uses [the Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) for the http requests, so you can use the [fetch polyfill](https://github.com/github/fetch) to have [support for old browsers](https://caniuse.com/#feat=fetch)
+* It uses [the Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) for the http requests, so you can use a [fetch polyfill](https://github.com/github/fetch) and a [Promise polyfill](https://github.com/taylorhakes/promise-polyfill) to have [support for old browsers](https://caniuse.com/#feat=fetch)
 
 ```sh
 npm install @oom/page-loader
@@ -52,7 +52,7 @@ Let's start with the following html code:
 </html>
 ```
 
-### JS
+### Javascript
 
 Use javascript for a complete experience:
 
@@ -79,6 +79,59 @@ nav.go('https//example.com/page2.html');
 const form = document.getElementById('my-form');
 nav.submit(form);
 ```
+
+### Page
+
+A page instance contains the info about a loaded page. It has the following methods and properties:
+
+```js
+new Navigator(page => {
+    page.replaceContent('#content'); //Replaces an element in the document by the same element in the page
+    page.appendContent('#content');  //Append the children of an element in the page to the same element in the document
+    page.applyTitle();               //Changes the current title by the page title
+    page.applyLocation();            //Changes the current url by the page url using window.pushState()
+    page.applyLocation(true);        //Changes the current url by the page url using window.replaceState()
+    page.querySelector('p');         //Performs a document.querySelector in the page. Throws an exception on empty result
+    page.querySelectorAll('p');      //Performs a document.querySelectorAll in the page. Throws an exception on empty result
+
+    page.url;         //Returns the page url
+    page.dom;         //Returns a HTMLDocument with the content of the page
+    page.title;       //Returns the title of the page
+    page.state;       //Returns an object with data that you can edit/read each time you visit that page
+
+    //The page.state contains by default some variables, like "direction":
+
+    if (page.state.direction === 'backward') {
+        backwardTransition();
+    } else {
+        forwardTransition();
+    }
+});
+```
+
+By default, the `page.state` object includes the following properties:
+
+* `page.state.event` The event name that init the page loading ("click" for links, "submit" for forms, "popstate", etc)
+* `page.state.direction` The direction of the new page: "backward" if the new page is older in the navigation history, "forward" otherwise.
+* If the new page is loader after a user click in a `a` element, the dataset values are automatically added to the page state. For example:
+
+```html
+<a href="newpage.html" data-transition="customTransition" data-target="#container">Click me!</a>
+```
+
+```js
+new Navigator(page => {
+    const transitionName = page.state.transition || 'defaultTransition';
+    const target = page.state.target || '#default-target';
+
+    page.replaceContent(target)
+        .applyTitle()
+        .applyLocation();
+
+    transitions[transitionName](target);
+});
+```
+
 
 ## Demo
 

@@ -3,7 +3,9 @@ import FormLoader from './form-loader.jsm';
 
 export default class Navigator {
     constructor(handler, errorHandler) {
-        this.loaders = {};
+        this.loaders = [];
+        this.currentLoader = null;
+        this.previousLoader = null;
         this.handler = handler;
         this.errorHandler = errorHandler;
         this.filters = [
@@ -12,7 +14,8 @@ export default class Navigator {
                 url.indexOf(
                     `${document.location.protocol}//${document.location.host}`
                 ) === 0,
-            (el, url) => url !== document.location.href
+            (el, url) => url !== document.location.href,
+            el => !el.target
         ];
     }
 
@@ -25,22 +28,34 @@ export default class Navigator {
     init() {
         delegate('click', 'a', (event, link) => {
             if (this.filters.every(filter => filter(link, link.href))) {
-                this.go(link.href, Object.assign({}, link.dataset));
+                this.go(
+                    link.href,
+                    Object.assign({ event: event.type }, link.dataset)
+                );
                 event.preventDefault();
             }
         });
 
         delegate('submit', 'form', (event, form) => {
-            const url = resolve(form.target);
+            const url = resolve(form.action);
 
             if (this.filters.every(filter => filter(form, url))) {
-                this.submit(form, Object.assign({}, form.dataset));
+                this.submit(
+                    form,
+                    Object.assign({ event: event.type }, form.dataset)
+                );
                 event.preventDefault();
             }
         });
 
         window.onpopstate = event =>
-            this.go(document.location.href, event.state);
+            this.go(
+                document.location.href,
+                Object.assign(event.state || {}, { event: event.type })
+            );
+
+        this.currentLoader = new UrlLoader(document.location.href);
+        this.loaders.push(this.currentLoader);
 
         return this;
     }
@@ -48,11 +63,18 @@ export default class Navigator {
     go(url, state = {}) {
         url = resolve(url);
 
-        if (!this.loaders[url]) {
-            this.loaders[url] = new UrlLoader(url);
+        let loader = this.loaders.find(loader => loader.url === url);
+
+        if (loader) {
+            if (this.previousLoader === loader && state.event === 'click') {
+                return history.back();
+            }
+        } else {
+            loader = new UrlLoader(url);
+            this.loaders.push(loader);
         }
 
-        return this.load(this.loaders[url], state);
+        return this.load(loader, state);
     }
 
     submit(form, state = {}) {
@@ -60,6 +82,18 @@ export default class Navigator {
     }
 
     load(loader, state = {}) {
+        state.direction = 'forward';
+
+        const indexCurrent = this.loaders.indexOf(this.currentLoader);
+        const indexNext = this.loaders.indexOf(loader);
+
+        if (indexCurrent > indexNext) {
+            state.direction = 'backward';
+        }
+
+        this.previousLoader = this.currentLoader;
+        this.currentLoader = loader;
+
         const promise = loader.load(state);
 
         if (this.handler) {
@@ -69,7 +103,7 @@ export default class Navigator {
                 }
 
                 console.error(err);
-                this.loaders[url].go();
+                loader.go();
             });
         }
 
