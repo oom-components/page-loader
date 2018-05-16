@@ -1,24 +1,40 @@
 import Page from './page.jsm';
 
+/**
+ * Class to load an url and generate a page with the result
+ */
 export default class UrlLoader {
     constructor(url) {
         this.url = url;
-        this.html = '';
-        this.cache = true;
     }
 
+    /**
+     * Performs a fetch to the url and return a promise
+     *
+     * @return {Promise}
+     */
     fetch() {
         return fetch(this.url);
     }
 
+    /**
+     * Go natively to the url. Used as fallback
+     */
     go() {
         document.location = this.url;
     }
 
+    /**
+     * Load the page with the content of the page
+     *
+     * @param  {Object} state
+     *
+     * @return {Promise}
+     */
     load(state = {}) {
-        if (this.cache && this.html) {
+        if (state.cache) {
             return new Promise(accept =>
-                accept(Page.createFromHtml(this.html, this.url, state))
+                accept(new Page(this.url, parseHtml(state.cache), state))
             );
         }
 
@@ -32,8 +48,16 @@ export default class UrlLoader {
             })
             .then(res => res.text())
             .then(html => {
-                this.html = this.cache ? html : '';
-                return Page.createFromHtml(html, this.url, state);
+                state.cache = html;
+                return new Page(this.url, parseHtml(html), state);
             });
     }
+}
+
+function parseHtml(html) {
+    html = html.trim().replace(/^\<!DOCTYPE html\>/i, '');
+    const doc = document.implementation.createHTMLDocument();
+    doc.documentElement.innerHTML = html;
+
+    return doc;
 }

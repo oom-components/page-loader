@@ -1,6 +1,9 @@
 import UrlLoader from './url-loader.jsm';
 import FormLoader from './form-loader.jsm';
 
+/**
+ * Class to handle the navigation history
+ */
 export default class Navigator {
     constructor(handler, errorHandler) {
         this.loaders = [];
@@ -19,12 +22,25 @@ export default class Navigator {
         ];
     }
 
-    addFilter(callback) {
-        this.filters.push(callback);
+    /**
+     * Add a filter to discard some urls and forms.
+     * It must be a function accepting two arguments: the element clicked and url
+     *
+     * @param {Function} filter
+     *
+     * @return {this}
+     */
+    addFilter(filter) {
+        this.filters.push(filter);
 
         return this;
     }
 
+    /**
+     * Init the navigator, attach the events to capture the history changes
+     *
+     * @return {this}
+     */
     init() {
         delegate('click', 'a', (event, link) => {
             if (this.filters.every(filter => filter(link, link.href))) {
@@ -60,6 +76,14 @@ export default class Navigator {
         return this;
     }
 
+    /**
+     * Go to other url. If the url is the previous visited, performs a history.back()
+     *
+     * @param  {string} url
+     * @param  {Object} state
+     *
+     * @return {Promise|void}
+     */
     go(url, state = {}) {
         url = resolve(url);
 
@@ -77,10 +101,26 @@ export default class Navigator {
         return this.load(loader, state);
     }
 
+    /**
+     * Submit a form via ajax
+     *
+     * @param  {HTMLFormElement} form
+     * @param  {Object} state
+     *
+     * @return {Promise}
+     */
     submit(form, state = {}) {
         return this.load(new FormLoader(form), state);
     }
 
+    /**
+     * Execute a page loader
+     *
+     * @param  {UrlLoader|FormLoader} loader
+     * @param  {Object} state
+     *
+     * @return {Promise}
+     */
     load(loader, state = {}) {
         state.direction = 'forward';
 

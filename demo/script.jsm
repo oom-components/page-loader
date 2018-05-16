@@ -5,8 +5,8 @@ const navigator = new Navigator(page => {
 
     page
         .replaceContent('.content')
-        .applyTitle()
-        .applyLocation();
+        .changeTitle()
+        .changeLocation();
 
     console.log(`Page changed to "${page.url}"`);
 });

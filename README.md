@@ -62,8 +62,8 @@ import Navigator from '@oom/page-loader';
 //Create the navigator passing a callback executed when the new page is loaded
 const nav = new Navigator(page => 
     page.replaceContent('main') //Replace the <main> element
-        .applyTitle()           //Change the title
-        .applyLocation()        //Change the history location
+        .changeTitle()          //Change the title
+        .changeLocation()       //Change the history location
 );
 
 //Init the navigation, capturing all clicks in links and form submits
@@ -88,8 +88,8 @@ A page instance contains the info about a loaded page. It has the following meth
 new Navigator(page => {
     page.replaceContent('#content'); //Replaces an element in the document by the same element in the page
     page.appendContent('#content');  //Append the children of an element in the page to the same element in the document
-    page.applyTitle();               //Changes the current title by the page title
-    page.applyLocation();            //Changes the current url by the page url using window.pushState()
+    page.changeTitle();              //Changes the current title by the page title
+    page.changeLocation();           //Changes the current url by the page url using window.pushState()
     page.applyLocation(true);        //Changes the current url by the page url using window.replaceState()
     page.querySelector('p');         //Performs a document.querySelector in the page. Throws an exception on empty result
     page.querySelectorAll('p');      //Performs a document.querySelectorAll in the page. Throws an exception on empty result
@@ -100,7 +100,6 @@ new Navigator(page => {
     page.state;       //Returns an object with data that you can edit/read each time you visit that page
 
     //The page.state contains by default some variables, like "direction":
-
     if (page.state.direction === 'backward') {
         backwardTransition();
     } else {
@@ -113,6 +112,7 @@ By default, the `page.state` object includes the following properties:
 
 * `page.state.event` The event name that init the page loading ("click" for links, "submit" for forms, "popstate", etc)
 * `page.state.direction` The direction of the new page: "backward" if the new page is older in the navigation history, "forward" otherwise.
+* `page.state.cache` The html code to be reused. You can remove this value to refresh the cache in the next request.
 * If the new page is loader after a user click in a `a` element, the dataset values are automatically added to the page state. For example:
 
 ```html
@@ -125,8 +125,8 @@ new Navigator(page => {
     const target = page.state.target || '#default-target';
 
     page.replaceContent(target)
-        .applyTitle()
-        .applyLocation();
+        .changeTitle()
+        .changeLocation();
 
     transitions[transitionName](target);
 });

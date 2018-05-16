@@ -1,6 +1,8 @@
-import Page from './page.jsm';
 import UrlLoader from './url-loader.jsm';
 
+/**
+ * Class to submit a form and generate a page with the result
+ */
 export default class FormLoader extends UrlLoader {
     constructor(form) {
         let url = form.target;
@@ -14,13 +16,20 @@ export default class FormLoader extends UrlLoader {
 
         this.method = method;
         this.form = form;
-        this.cache = false;
     }
 
+    /**
+     * Submit natively the form. Used as fallback
+     */
     go() {
         this.form.submit();
     }
 
+    /**
+     * Performs a fetch with the form data and return a promise
+     *
+     * @return {Promise}
+     */
     fetch() {
         const options = { method: this.method };
 

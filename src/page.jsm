@@ -1,12 +1,7 @@
+/**
+ * Class to handle a loaded page
+ */
 export default class Page {
-    static createFromHtml(html, url, state) {
-        html = html.trim().replace(/^\<!DOCTYPE html\>/i, '');
-        const doc = document.implementation.createHTMLDocument();
-        doc.documentElement.innerHTML = html;
-
-        return new Page(url, doc, state);
-    }
-
     constructor(url, dom, state) {
         this.url = url;
         this.dom = dom;
@@ -17,6 +12,14 @@ export default class Page {
         return this.dom.title;
     }
 
+    /**
+     * Performs a querySelector in the page content or document
+     *
+     * @param  {string} selector
+     * @param  {DocumentElement} context
+     *
+     * @return {Node}
+     */
     querySelector(selector, context = this.dom) {
         const result = context.querySelector(selector);
 
@@ -27,6 +30,14 @@ export default class Page {
         return result;
     }
 
+    /**
+     * Performs a querySelector
+     *
+     * @param  {string} selector
+     * @param  {DocumentElement} context
+     *
+     * @return {Nodelist}
+     */
     querySelectorAll(selector, context = this.dom) {
         const result = context.querySelectorAll(selector);
 
@@ -37,10 +48,19 @@ export default class Page {
         return result;
     }
 
-    replaceContent(target = 'body', callback = undefined) {
-        const content = this.querySelector(target);
+    /**
+     * Replace an element in the document by an element in the page
+     * Optionally, it can execute a callback to the new inserted element
+     *
+     * @param  {String} selector
+     * @param  {Function|undefined} callback
+     *
+     * @return {this}
+     */
+    replaceContent(selector = 'body', callback = undefined) {
+        const content = this.querySelector(selector);
 
-        this.querySelector(target, document).replaceWith(content);
+        this.querySelector(selector, document).replaceWith(content);
 
         if (typeof callback === 'function') {
             callback(content);
@@ -49,6 +69,15 @@ export default class Page {
         return this;
     }
 
+    /**
+     * Appends the content of an element in the page in other element in the document
+     * Optionally, it can execute a callback for each new inserted elements
+     *
+     * @param  {String} selector
+     * @param  {Function|undefined} callback
+     *
+     * @return {this}
+     */
     appendContent(target = 'body', callback = undefined) {
         const content = Array.from(this.querySelector(target).childNodes);
         const fragment = document.createDocumentFragment();
@@ -66,12 +95,25 @@ export default class Page {
         return this;
     }
 
-    applyTitle() {
+    /**
+     * Change the title of the document with the title of the page
+     *
+     * @return {this}
+     */
+    changeTitle() {
         document.title = this.title;
         return this;
     }
 
-    applyLocation(replace = false) {
+    /**
+     * Change the location of the document with the url of the page
+     * Use the first argument to replace the state instead push
+     *
+     * @param  {Boolean} replace
+     *
+     * @return {this}
+     */
+    changeLocation(replace = false) {
         if (this.url === document.location.href) {
             return this;
         }
