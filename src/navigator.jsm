@@ -140,9 +140,10 @@ export default class Navigator {
             return promise.then(page => this.handler(page)).catch(err => {
                 if (this.errorHandler) {
                     this.errorHandler(err);
+                } else {
+                    console.error(err);
                 }
 
-                console.error(err);
                 loader.go();
             });
         }

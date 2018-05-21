@@ -1,9 +1,10 @@
 # @oom/page-loader
 
-Javascript library to load pages using ajax and replace the content in the current page. It also can change the title, the url and create beautiful page transitions. It has the following features:
+Javascript library to load pages using ajax and replace the content in the current page. It also can change the title, the url, css and javascript. You can use this library to improve the page load speed and create beautiful page transitions. It has the following features:
 
 * No dependencies
-* Superlight. About 200 lines of code (no minified)
+* Superlight
+* It can be used also with forms, not only links.
 * Follows the progressive enhancement strategy: **if javascript fails, the web page keeps working**
 * Built with ES6, so you may need a transpiler for old browser support
 
@@ -30,7 +31,10 @@ Let's start with the following html code:
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>Page title</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="scripts.js"></script>
 </head>
 <body>
     <nav class="menu">
@@ -64,13 +68,18 @@ const nav = new Navigator(page =>
     page.replaceContent('main') //Replace the <main> element
         .changeTitle()          //Change the title
         .changeLocation()       //Change the history location
+        .changeStyles()         //Load the new css styles defined in <head> not present currently
+        .changeScripts()        //Load the new js files defined in <head> not present currently
 );
 
 //Init the navigation, capturing all clicks in links and form submits
 nav.init();
 
 //Optionally, you can filter links and forms to disable this behaviour
-nav.addFilter(link => !link.classList.contains('no-loader'));
+nav.addFilter(el => !el.classList.contains('no-loader'));
+
+//For example, to disable forms:
+nav.addFilter(el => el.tagName !== 'FORM');
 
 //You can go manually to other url when you want
 nav.go('https//example.com/page2.html');
@@ -82,7 +91,7 @@ nav.submit(form);
 
 ### Page
 
-A page instance contains the info about a loaded page. It has the following methods and properties:
+A page instance contains the info about the loaded page. It has the following methods and properties:
 
 ```js
 new Navigator(page => {
@@ -115,7 +124,7 @@ By default, the `page.state` object includes the following properties:
 * `page.state.event` The event name that init the page loading ("click" for links, "submit" for forms, "popstate", etc)
 * `page.state.direction` The direction of the new page: "backward" if the new page is older in the navigation history, "forward" otherwise.
 * `page.state.cache` The html code to be reused. You can remove this value to refresh the cache in the next request.
-* If the new page is loader after a user click in a `a` element, the dataset values are automatically added to the page state. For example:
+* If the new page is loaded by clicking in a `a` element, the data-* values are automatically added to the page state. For example:
 
 ```html
 <a href="newpage.html" data-transition="customTransition" data-target="#container">Click me!</a>
