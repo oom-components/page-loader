@@ -2,7 +2,7 @@
   "name": "@oom/page-loader",
   "version": "1.0.0",
   "description": "Ajax page loader",
-  "main": "src/page-loader.js",
+  "main": "src/navigator.jsm",
   "scripts": {
     "start": "webpack --config demo/webpack.config.js --watch & http-server demo -c-1",
     "prettier": "prettier src/*.jsm demo/script.jsm --single-quote --tab-width 4 --write",
@@ -29,7 +29,7 @@
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.47",
     "@babel/preset-env": "^7.0.0-beta.47",
-    "babel-loader": "^8.0.0-beta.2",
+    "babel-loader": "^8.0.0-beta.3",
     "gh-pages": "^1.1.0",
     "http-server": "^0.11.1",
     "prettier": "^1.12.1",
