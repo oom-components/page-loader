@@ -126,4 +126,85 @@ export default class Page {
 
         return this;
     }
+
+    /**
+     * Change the css of the current page
+     *
+     * @param {string} context
+     *
+     * @return {this}
+     */
+    changeStyles(context = 'head') {
+        const documentContext = this.querySelector(context, document);
+        const pageContext = this.querySelector(context);
+        const oldLinks = Array.from(
+            documentContext.querySelectorAll('link[rel="stylesheet"]')
+        );
+        const newLinks = Array.from(
+            pageContext.querySelectorAll('link[rel="stylesheet"]')
+        );
+
+        oldLinks.forEach(link => {
+            const exists = newLinks.find(newLink => newLink.href === link.href);
+
+            if (!exists) {
+                link.remove();
+            }
+        });
+
+        newLinks.forEach(link => {
+            const exists = oldLinks.find(oldLink => oldLink.href === link.href);
+
+            if (!exists) {
+                documentContext.append(link);
+            }
+        });
+
+        return this;
+    }
+
+    /**
+     * Change the scripts of the current page
+     *
+     * @param {string} context
+     *
+     * @return {this}
+     */
+    changeScripts(context = 'head') {
+        const documentContext = this.querySelector(context, document);
+        const pageContext = this.querySelector(context);
+        const oldScripts = Array.from(
+            documentContext.querySelectorAll('script[src]')
+        );
+        const newScripts = Array.from(
+            pageContext.querySelectorAll('script[src]')
+        );
+
+        oldScripts.forEach(script => {
+            const exists = newScripts.find(
+                newScript => newScript.src === script.src
+            );
+
+            if (!exists) {
+                script.remove();
+            }
+        });
+
+        newScripts.forEach(script => {
+            const exists = oldScripts.find(
+                oldScript => oldScript.src === script.src
+            );
+
+            if (!exists) {
+                const newScript = document.createElement('script');
+                newScript.src = script.src;
+                newScript.defer = script.defer;
+                newScript.async = script.async;
+
+                documentContext.append(newScript);
+            }
+        });
+
+        return this;
+    }
 }

@@ -86,11 +86,13 @@ A page instance contains the info about a loaded page. It has the following meth
 
 ```js
 new Navigator(page => {
-    page.replaceContent('#content'); //Replaces an element in the document by the same element in the page
+    page.replaceContent('#content'); //Replace an element in the document by the same element in the page
     page.appendContent('#content');  //Append the children of an element in the page to the same element in the document
-    page.changeTitle();              //Changes the current title by the page title
-    page.changeLocation();           //Changes the current url by the page url using window.pushState()
-    page.applyLocation(true);        //Changes the current url by the page url using window.replaceState()
+    page.changeTitle();              //Change the current title by the page title
+    page.changeLocation();           //Change the current url by the page url using window.pushState()
+    page.changeLocation(true);       //Change the current url by the page url using window.replaceState()
+    page.changeStyles();             //Change the css styles used in the new page (<link rel="stylesheet"> in <head>)
+    page.changeScripts();            //Change the js styles used in the new page (<script src="..."> in <head>)
     page.querySelector('p');         //Performs a document.querySelector in the page. Throws an exception on empty result
     page.querySelectorAll('p');      //Performs a document.querySelectorAll in the page. Throws an exception on empty result
 
