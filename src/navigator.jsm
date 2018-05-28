@@ -44,11 +44,7 @@ export default class Navigator {
     init() {
         delegate('click', 'a', (event, link) => {
             if (this.filters.every(filter => filter(link, link.href))) {
-                this.go(
-                    link.href,
-                    Object.assign({}, link.dataset),
-                    event
-                );
+                this.go(link.href, Object.assign({}, link.dataset), event);
                 event.preventDefault();
             }
         });
@@ -57,11 +53,7 @@ export default class Navigator {
             const url = resolve(form.action);
 
             if (this.filters.every(filter => filter(form, url))) {
-                this.submit(
-                    form,
-                    Object.assign({}, form.dataset),
-                    event
-                );
+                this.submit(form, Object.assign({}, form.dataset), event);
                 event.preventDefault();
             }
         });
@@ -69,7 +61,7 @@ export default class Navigator {
         window.onpopstate = event =>
             this.go(
                 document.location.href,
-                Object.assign(event.state || {})
+                Object.assign(event.state || {}),
                 event
             );
 
