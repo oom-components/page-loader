@@ -109,6 +109,7 @@ new Navigator(page => {
     page.dom;         //Returns a HTMLDocument with the content of the page
     page.title;       //Returns the title of the page
     page.state;       //Returns an object with data that you can edit/read each time you visit that page
+    page.event;       //Returns the event that init the page loading ("click", "submit", "popstate", etc)
 
     //The page.state contains by default some variables, like "direction":
     if (page.state.direction === 'backward') {
@@ -121,9 +122,8 @@ new Navigator(page => {
 
 By default, the `page.state` object includes the following properties:
 
-* `page.state.event` The event name that init the page loading ("click" for links, "submit" for forms, "popstate", etc)
 * `page.state.direction` The direction of the new page: "backward" if the new page is older in the navigation history, "forward" otherwise.
-* `page.state.cache` The html code to be reused. You can remove this value to refresh the cache in the next request.
+* `page.state.html` The html code to be reused. You can remove this value to refresh the cache in the next request.
 * If the new page is loaded by clicking in a `a` element, the data-* values are automatically added to the page state. For example:
 
 ```html

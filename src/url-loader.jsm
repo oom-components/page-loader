@@ -28,13 +28,14 @@ export default class UrlLoader {
      * Load the page with the content of the page
      *
      * @param  {Object} state
+     * @param  {Event} event
      *
      * @return {Promise}
      */
-    load(state = {}) {
-        if (state.cache) {
+    load(state = {}, event) {
+        if (state.html) {
             return new Promise(accept =>
-                accept(new Page(this.url, parseHtml(state.cache), state))
+                accept(new Page(this.url, parseHtml(state.html), state, event))
             );
         }
 
@@ -48,8 +49,8 @@ export default class UrlLoader {
             })
             .then(res => res.text())
             .then(html => {
-                state.cache = html;
-                return new Page(this.url, parseHtml(html), state);
+                state.html = html;
+                return new Page(this.url, parseHtml(html), state, event);
             });
     }
 }

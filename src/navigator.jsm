@@ -46,7 +46,8 @@ export default class Navigator {
             if (this.filters.every(filter => filter(link, link.href))) {
                 this.go(
                     link.href,
-                    Object.assign({ event: event.type }, link.dataset)
+                    Object.assign({}, link.dataset),
+                    event
                 );
                 event.preventDefault();
             }
@@ -58,7 +59,8 @@ export default class Navigator {
             if (this.filters.every(filter => filter(form, url))) {
                 this.submit(
                     form,
-                    Object.assign({ event: event.type }, form.dataset)
+                    Object.assign({}, form.dataset),
+                    event
                 );
                 event.preventDefault();
             }
@@ -67,7 +69,8 @@ export default class Navigator {
         window.onpopstate = event =>
             this.go(
                 document.location.href,
-                Object.assign(event.state || {}, { event: event.type })
+                Object.assign(event.state || {})
+                event
             );
 
         this.currentLoader = new UrlLoader(document.location.href);
@@ -81,16 +84,17 @@ export default class Navigator {
      *
      * @param  {string} url
      * @param  {Object} state
+     * @param  {Event} event
      *
      * @return {Promise|void}
      */
-    go(url, state = {}) {
+    go(url, state = {}, event) {
         url = resolve(url);
 
         let loader = this.loaders.find(loader => loader.url === url);
 
         if (loader) {
-            if (this.previousLoader === loader && state.event === 'click') {
+            if (this.previousLoader === loader) {
                 return history.back();
             }
         } else {
@@ -98,7 +102,7 @@ export default class Navigator {
             this.loaders.push(loader);
         }
 
-        return this.load(loader, state);
+        return this.load(loader, state, event);
     }
 
     /**
@@ -106,11 +110,12 @@ export default class Navigator {
      *
      * @param  {HTMLFormElement} form
      * @param  {Object} state
+     * @param  {Event} event
      *
      * @return {Promise}
      */
-    submit(form, state = {}) {
-        return this.load(new FormLoader(form), state);
+    submit(form, state = {}, event) {
+        return this.load(new FormLoader(form), state, event);
     }
 
     /**
@@ -118,10 +123,11 @@ export default class Navigator {
      *
      * @param  {UrlLoader|FormLoader} loader
      * @param  {Object} state
+     * @param  {Event} event
      *
      * @return {Promise}
      */
-    load(loader, state = {}) {
+    load(loader, state = {}, event) {
         state.direction = 'forward';
 
         const indexCurrent = this.loaders.indexOf(this.currentLoader);
@@ -134,7 +140,7 @@ export default class Navigator {
         this.previousLoader = this.currentLoader;
         this.currentLoader = loader;
 
-        const promise = loader.load(state);
+        const promise = loader.load(state, event);
 
         if (this.handler) {
             return promise.then(page => this.handler(page)).catch(err => {

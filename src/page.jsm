@@ -2,10 +2,11 @@
  * Class to handle a loaded page
  */
 export default class Page {
-    constructor(url, dom, state) {
+    constructor(url, dom, state, event) {
         this.url = url;
         this.dom = dom;
         this.state = state || {};
+        this.event = event;
     }
 
     get title() {

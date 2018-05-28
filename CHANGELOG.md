@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## UNRELEASED
+
+### Changed
+
+- Removed `page.state.event` and store the event object in `page.event` property.
+- Renamed `page.state.cache` to `page.state.html`.
+
 ## [1.0.0] - 2018-05-21
 
 ### Changed
