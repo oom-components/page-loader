@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Removed `page.state.event` and store the event object in `page.event` property.
 - Renamed `page.state.cache` to `page.state.html`.
+- Renamed extensions from `.jsm` to `.js` due `Content-Type` header issues
+- The `package.json` is now more browser-friendly using `browser` and `files` keys
 
 ## [1.0.0] - 2018-05-21
 
