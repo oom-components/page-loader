@@ -8,9 +8,8 @@
     "src"
   ],
   "scripts": {
-    "start": "webpack --config demo/webpack.config.js --watch & http-server demo -c-1",
-    "prettier": "prettier src/*.jsm demo/script.jsm --single-quote --tab-width 4 --write",
-    "gh-pages": "webpack --config demo/webpack.config.js && gh-pages -d demo"
+    "start": "http-server -c-1",
+    "prettier": "prettier src/*.js demo/script.js --single-quote --tab-width 4 --write"
   },
   "repository": {
     "type": "git",
@@ -31,13 +30,7 @@
   },
   "homepage": "https://github.com/oom-components/page-loader#readme",
   "devDependencies": {
-    "@babel/core": "^7.0.0-beta.47",
-    "@babel/preset-env": "^7.0.0-beta.47",
-    "babel-loader": "^8.0.0-beta.3",
-    "gh-pages": "^1.1.0",
     "http-server": "^0.11.1",
-    "prettier": "^1.12.1",
-    "webpack": "^4.8.3",
-    "webpack-cli": "^2.1.2"
+    "prettier": "^1.13.7"
   }
 }

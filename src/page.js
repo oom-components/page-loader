@@ -199,6 +199,7 @@ export default class Page {
             if (!exists) {
                 const newScript = document.createElement('script');
                 newScript.src = script.src;
+                newScript.type = script.type;
                 newScript.defer = script.defer;
                 newScript.async = script.async;
 

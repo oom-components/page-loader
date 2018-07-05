@@ -86,7 +86,7 @@ export default class Navigator {
         let loader = this.loaders.find(loader => loader.url === url);
 
         if (loader) {
-            if (this.previousLoader === loader) {
+            if (event.type !== 'popstate' && this.previousLoader === loader) {
                 return history.back();
             }
         } else {
