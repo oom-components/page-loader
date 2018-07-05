@@ -1,4 +1,4 @@
-import UrlLoader from './url-loader.jsm';
+import UrlLoader from './url-loader.js';
 
 /**
  * Class to submit a form and generate a page with the result

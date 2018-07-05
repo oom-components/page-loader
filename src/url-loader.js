@@ -1,4 +1,4 @@
-import Page from './page.jsm';
+import Page from './page.js';
 
 /**
  * Class to load an url and generate a page with the result

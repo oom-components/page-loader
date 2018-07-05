@@ -2,7 +2,11 @@
   "name": "@oom/page-loader",
   "version": "1.0.0",
   "description": "Ajax page loader",
-  "main": "src/navigator.jsm",
+  "browser": "src/navigator.js",
+  "modules.root": "src",
+  "files": [
+    "src"
+  ],
   "scripts": {
     "start": "webpack --config demo/webpack.config.js --watch & http-server demo -c-1",
     "prettier": "prettier src/*.jsm demo/script.jsm --single-quote --tab-width 4 --write",
