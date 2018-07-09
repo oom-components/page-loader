@@ -5,12 +5,11 @@ import FormLoader from './form-loader.js';
  * Class to handle the navigation history
  */
 export default class Navigator {
-    constructor(handler, errorHandler) {
+    constructor(handler) {
         this.loaders = [];
         this.currentLoader = null;
         this.previousLoader = null;
         this.handler = handler;
-        this.errorHandler = errorHandler;
         this.filters = [
             (el, url) =>
                 url &&
@@ -132,21 +131,14 @@ export default class Navigator {
         this.previousLoader = this.currentLoader;
         this.currentLoader = loader;
 
-        const promise = loader.load(state, event);
+        try {
+            return this.handler(loader, state, event);
+        } catch (err) {
+            console.error(err);
+            loader.go();
 
-        if (this.handler) {
-            return promise.then(page => this.handler(page)).catch(err => {
-                if (this.errorHandler) {
-                    this.errorHandler(err);
-                } else {
-                    console.error(err);
-                }
-
-                loader.go();
-            });
+            return Promise.resolve();
         }
-
-        return promise;
     }
 }
 

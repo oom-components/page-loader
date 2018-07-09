@@ -63,13 +63,21 @@ Use javascript for a complete experience:
 ```js
 import Navigator from '@oom/page-loader';
 
-//Create the navigator passing a callback executed when the new page is loaded
-const nav = new Navigator(page => 
-    page.replaceContent('main') //Replace the <main> element
-        .changeTitle()          //Change the title
-        .changeLocation()       //Change the history location
-        .changeStyles()         //Load the new css styles defined in <head> not present currently
-        .changeScripts()        //Load the new js files defined in <head> not present currently
+//Create the navigator passing a callback executed to load new pages
+// Loader: The object that load the new page
+// State: The new page state
+// Event: The event that starts the callback (click, submit, etc)
+
+const nav = new Navigator((loader, state, event) => 
+    //Load the page
+    loader.load(state)
+        .then(page =>
+            page.replaceContent('main') //Replace the <main> element
+                .changeTitle()          //Change the title
+                .changeLocation()       //Change the history location
+                .changeStyles()         //Load the new css styles defined in <head> not present currently
+                .changeScripts()        //Load the new js files defined in <head> not present currently
+        )
 );
 
 //Init the navigation, capturing all clicks in links and form submits
@@ -94,29 +102,31 @@ nav.submit(form);
 A page instance contains the info about the loaded page. It has the following methods and properties:
 
 ```js
-new Navigator(page => {
-    page.replaceContent('#content'); //Replace an element in the document by the same element in the page
-    page.appendContent('#content');  //Append the children of an element in the page to the same element in the document
-    page.changeTitle();              //Change the current title by the page title
-    page.changeLocation();           //Change the current url by the page url using window.pushState()
-    page.changeLocation(true);       //Change the current url by the page url using window.replaceState()
-    page.changeStyles();             //Change the css styles used in the new page (<link rel="stylesheet"> in <head>)
-    page.changeScripts();            //Change the js styles used in the new page (<script src="..."> in <head>)
-    page.querySelector('p');         //Performs a document.querySelector in the page. Throws an exception on empty result
-    page.querySelectorAll('p');      //Performs a document.querySelectorAll in the page. Throws an exception on empty result
+new Navigator((loader, state, event) => {
+    loader.load(state)
+        .then(page => {
+            page.replaceContent('#content'); //Replace an element in the document by the same element in the page
+            page.appendContent('#content');  //Append the children of an element in the page to the same element in the document
+            page.changeTitle();              //Change the current title by the page title
+            page.changeLocation();           //Change the current url by the page url using window.pushState()
+            page.changeLocation(true);       //Change the current url by the page url using window.replaceState()
+            page.changeStyles();             //Change the css styles used in the new page (<link rel="stylesheet"> in <head>)
+            page.changeScripts();            //Change the js styles used in the new page (<script src="..."> in <head>)
+            page.querySelector('p');         //Performs a document.querySelector in the page. Throws an exception on empty result
+            page.querySelectorAll('p');      //Performs a document.querySelectorAll in the page. Throws an exception on empty result
 
-    page.url;         //Returns the page url
-    page.dom;         //Returns a HTMLDocument with the content of the page
-    page.title;       //Returns the title of the page
-    page.state;       //Returns an object with data that you can edit/read each time you visit that page
-    page.event;       //Returns the event that init the page loading ("click", "submit", "popstate", etc)
+            page.url;         //Returns the page url
+            page.dom;         //Returns a HTMLDocument with the content of the page
+            page.title;       //Returns the title of the page
+            page.state;       //Returns an object with data that you can edit/read each time you visit that page
 
-    //The page.state contains by default some variables, like "direction":
-    if (page.state.direction === 'backward') {
-        backwardTransition();
-    } else {
-        forwardTransition();
-    }
+            //The page.state contains by default some variables, like "direction":
+            if (page.state.direction === 'backward') {
+                backwardTransition();
+            } else {
+                forwardTransition();
+            }
+        })
 });
 ```
 
@@ -131,15 +141,18 @@ By default, the `page.state` object includes the following properties:
 ```
 
 ```js
-new Navigator(page => {
-    const transitionName = page.state.transition || 'defaultTransition';
-    const target = page.state.target || '#default-target';
+new Navigator((loader, state, event) => {
+    loader.load(state)
+        .then(page => {
+            const transitionName = page.state.transition || 'defaultTransition';
+            const target = page.state.target || '#default-target';
 
-    page.replaceContent(target)
-        .changeTitle()
-        .changeLocation();
+            page.replaceContent(target)
+                .changeTitle()
+                .changeLocation();
 
-    transitions[transitionName](target);
+            transitions[transitionName](target);
+        })
 });
 ```
 
