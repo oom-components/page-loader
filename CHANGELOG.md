@@ -5,15 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## UNRELEASED
+## [UNRELEASED]
 
 ### Changed
 
 - Changed the signature of the navigator handler.
 - Removed `page.state.event`.
 - Renamed `page.state.cache` to `page.state.html`.
-- Renamed extensions from `.jsm` to `.js` due `Content-Type` header issues
-- The `package.json` is now more browser-friendly using `browser` and `files` keys
+- Renamed extensions from `.jsm` to `.js` due `Content-Type` header issues.
+- Renamed function `loader.go` to `loader.fallback()`.
+- Throwed exceptions on `3xx` responses.
+- The `package.json` is now more browser-friendly using `browser` and `files` keys.
 
 ## [1.0.0] - 2018-05-21
 
@@ -61,6 +63,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 First version with basic features
 
 
+[UNRELEASED]: https://github.com/oom-components/page-loader/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/oom-components/page-loader/compare/v0.2.4...v1.0.0
 [0.2.4]: https://github.com/oom-components/page-loader/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/oom-components/page-loader/compare/v0.2.2...v0.2.3

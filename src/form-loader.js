@@ -21,7 +21,7 @@ export default class FormLoader extends UrlLoader {
     /**
      * Submit natively the form. Used as fallback
      */
-    go() {
+    fallback() {
         this.form.submit();
     }
 

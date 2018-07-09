@@ -20,7 +20,7 @@ export default class UrlLoader {
     /**
      * Go natively to the url. Used as fallback
      */
-    go() {
+    fallback() {
         document.location = this.url;
     }
 
@@ -40,7 +40,7 @@ export default class UrlLoader {
 
         return this.fetch()
             .then(res => {
-                if (res.status < 200 || res.status >= 400) {
+                if (res.status < 200 || res.status >= 300) {
                     throw new Error(`The request status code is ${res.status}`);
                 }
 

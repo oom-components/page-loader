@@ -135,7 +135,7 @@ export default class Navigator {
             return this.handler(loader, state, event);
         } catch (err) {
             console.error(err);
-            loader.go();
+            loader.fallback();
 
             return Promise.resolve();
         }
