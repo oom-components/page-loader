@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [UNRELEASED]
 
+### Added
+
+- New function `page.removeContent()`
+
 ### Changed
 
 - Changed the signature of the navigator handler.

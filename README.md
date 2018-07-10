@@ -107,6 +107,7 @@ new Navigator((loader, state, event) => {
         .then(page => {
             page.replaceContent('#content'); //Replace an element in the document by the same element in the page
             page.appendContent('#content');  //Append the children of an element in the page to the same element in the document
+            page.removeContent('#content > .unwanted');  //Remove content from the document
             page.changeTitle();              //Change the current title by the page title
             page.changeLocation();           //Change the current url by the page url using window.pushState()
             page.changeLocation(true);       //Change the current url by the page url using window.replaceState()

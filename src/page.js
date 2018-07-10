@@ -49,6 +49,19 @@ export default class Page {
     }
 
     /**
+     * Removes elements in the document
+     *
+     * @param  {String} selector
+     *
+     * @return {this}
+     */
+    removeContent(selector) {
+        this.querySelectorAll(selector, document).forEach(element => element.remove());
+
+        return this;
+    }
+
+    /**
      * Replace an element in the document by an element in the page
      * Optionally, it can execute a callback to the new inserted element
      *
