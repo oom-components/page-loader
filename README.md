@@ -120,22 +120,12 @@ new Navigator((loader, state, event) => {
             page.dom;         //Returns a HTMLDocument with the content of the page
             page.title;       //Returns the title of the page
             page.state;       //Returns an object with data that you can edit/read each time you visit that page
-
-            //The page.state contains by default some variables, like "direction":
-            if (page.state.direction === 'backward') {
-                backwardTransition();
-            } else {
-                forwardTransition();
-            }
+            page.state.html;  //The html code loaded to be reused. You can remove it reload the html in the next request
         })
 });
 ```
 
-By default, the `page.state` object includes the following properties:
-
-* `page.state.direction` The direction of the new page: "backward" if the new page is older in the navigation history, "forward" otherwise.
-* `page.state.html` The html code to be reused. You can remove this value to refresh the cache in the next request.
-* If the new page is loaded by clicking in a `a` element, the data-* values are automatically added to the page state. For example:
+By default, the `page.state` object includes the property `html` with the html code to be reused. You can remove this value to refresh the cache in the next request. If the new page is loaded by clicking in an `a` element, the data-* values are automatically added to the page state. For example:
 
 ```html
 <a href="newpage.html" data-transition="customTransition" data-target="#container">Click me!</a>

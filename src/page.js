@@ -56,7 +56,9 @@ export default class Page {
      * @return {this}
      */
     removeContent(selector) {
-        this.querySelectorAll(selector, document).forEach(element => element.remove());
+        this.querySelectorAll(selector, document).forEach(element =>
+            element.remove()
+        );
 
         return this;
     }

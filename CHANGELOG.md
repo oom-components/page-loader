@@ -21,6 +21,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Throwed exceptions on `3xx` responses.
 - The `package.json` is now more browser-friendly using `browser` and `files` keys.
 
+### Removed
+
+- Removed the `navigator.currentLoader`, `navigator.nextLoader` and `page.state.direction` properties.
+- Removed the ability to force a `history.back()`. It can be implemented in the navigator handler.
+
 ## [1.0.0] - 2018-05-21
 
 ### Changed

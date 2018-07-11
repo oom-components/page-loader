@@ -7,8 +7,6 @@ import FormLoader from './form-loader.js';
 export default class Navigator {
     constructor(handler) {
         this.loaders = [];
-        this.currentLoader = null;
-        this.previousLoader = null;
         this.handler = handler;
         this.filters = [
             (el, url) =>
@@ -64,8 +62,7 @@ export default class Navigator {
                 event
             );
 
-        this.currentLoader = new UrlLoader(document.location.href);
-        this.loaders.push(this.currentLoader);
+        this.loaders.push(new UrlLoader(document.location.href));
 
         return this;
     }
@@ -84,11 +81,7 @@ export default class Navigator {
 
         let loader = this.loaders.find(loader => loader.url === url);
 
-        if (loader) {
-            if (event.type !== 'popstate' && this.previousLoader === loader) {
-                return history.back();
-            }
-        } else {
+        if (!loader) {
             loader = new UrlLoader(url);
             this.loaders.push(loader);
         }
@@ -119,18 +112,6 @@ export default class Navigator {
      * @return {Promise}
      */
     load(loader, state = {}, event) {
-        state.direction = 'forward';
-
-        const indexCurrent = this.loaders.indexOf(this.currentLoader);
-        const indexNext = this.loaders.indexOf(loader);
-
-        if (indexCurrent > indexNext) {
-            state.direction = 'backward';
-        }
-
-        this.previousLoader = this.currentLoader;
-        this.currentLoader = loader;
-
         try {
             return this.handler(loader, state, event);
         } catch (err) {
