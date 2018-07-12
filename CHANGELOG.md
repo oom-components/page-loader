@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Renamed function `loader.go` to `loader.fallback()`.
 - Throwed exceptions on `3xx` responses.
 - The `package.json` is now more browser-friendly using `browser` and `files` keys.
+- `page.changeStyles()` changes also the `<style>` elements.
 
 ### Removed
 

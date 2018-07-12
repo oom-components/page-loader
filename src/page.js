@@ -175,6 +175,9 @@ export default class Page {
             }
         });
 
+        documentContext.querySelectorAll('style').forEach(style => style.remove());
+        pageContext.querySelectorAll('style').forEach(style => documentContext.append(style));
+
         return this;
     }
 
