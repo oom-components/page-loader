@@ -6,6 +6,7 @@ export default class Page {
         this.url = url;
         this.dom = dom;
         this.state = state || {};
+        this.promise = Promise.resolve();
     }
 
     get title() {
@@ -56,9 +57,11 @@ export default class Page {
      * @return {this}
      */
     removeContent(selector) {
-        this.querySelectorAll(selector, document).forEach(element =>
-            element.remove()
-        );
+        this.promise.then(() => {
+            this.querySelectorAll(selector, document).forEach(element =>
+                element.remove()
+            );
+        });
 
         return this;
     }
@@ -73,13 +76,15 @@ export default class Page {
      * @return {this}
      */
     replaceContent(selector = 'body', callback = undefined) {
-        const content = this.querySelector(selector);
+        this.promise.then(() => {
+            const content = this.querySelector(selector);
 
-        this.querySelector(selector, document).replaceWith(content);
+            this.querySelector(selector, document).replaceWith(content);
 
-        if (typeof callback === 'function') {
-            callback(content);
-        }
+            if (typeof callback === 'function') {
+                callback(content);
+            }
+        });
 
         return this;
     }
@@ -94,18 +99,20 @@ export default class Page {
      * @return {this}
      */
     appendContent(target = 'body', callback = undefined) {
-        const content = Array.from(this.querySelector(target).childNodes);
-        const fragment = document.createDocumentFragment();
+        this.promise.then(() => {
+            const content = Array.from(this.querySelector(target).childNodes);
+            const fragment = document.createDocumentFragment();
 
-        content.forEach(item => fragment.appendChild(item));
+            content.forEach(item => fragment.appendChild(item));
 
-        this.querySelector(target, document).append(fragment);
+            this.querySelector(target, document).append(fragment);
 
-        if (typeof callback === 'function') {
-            content
-                .filter(item => item.nodeType === Node.ELEMENT_NODE)
-                .forEach(callback);
-        }
+            if (typeof callback === 'function') {
+                content
+                    .filter(item => item.nodeType === Node.ELEMENT_NODE)
+                    .forEach(callback);
+            }
+        });
 
         return this;
     }
@@ -116,7 +123,10 @@ export default class Page {
      * @return {this}
      */
     changeTitle() {
-        document.title = this.title;
+        this.promise.then(() => {
+            document.title = this.title;
+        });
+
         return this;
     }
 
@@ -129,15 +139,17 @@ export default class Page {
      * @return {this}
      */
     changeLocation(replace = false) {
-        if (this.url === document.location.href) {
-            return this;
-        }
+        this.promise.then(() => {
+            if (this.url === document.location.href) {
+                return this;
+            }
 
-        if (replace) {
-            history.replaceState(this.state, null, this.url);
-        } else {
-            history.pushState(this.state, null, this.url);
-        }
+            if (replace) {
+                history.replaceState(this.state, null, this.url);
+            } else {
+                history.pushState(this.state, null, this.url);
+            }
+        });
 
         return this;
     }
@@ -150,33 +162,59 @@ export default class Page {
      * @return {this}
      */
     changeStyles(context = 'head') {
-        const documentContext = this.querySelector(context, document);
-        const pageContext = this.querySelector(context);
-        const oldLinks = Array.from(
-            documentContext.querySelectorAll('link[rel="stylesheet"]')
-        );
-        const newLinks = Array.from(
-            pageContext.querySelectorAll('link[rel="stylesheet"]')
-        );
+        this.promise.then(() => {
+            const documentContext = this.querySelector(context, document);
+            const pageContext = this.querySelector(context);
+            const oldLinks = Array.from(
+                documentContext.querySelectorAll('link[rel="stylesheet"]')
+            );
+            const newLinks = Array.from(
+                pageContext.querySelectorAll('link[rel="stylesheet"]')
+            );
 
-        oldLinks.forEach(link => {
-            const exists = newLinks.find(newLink => newLink.href === link.href);
+            oldLinks.forEach(link => {
+                const index = newLinks.findIndex(
+                    newLink => newLink.href === link.href
+                );
 
-            if (!exists) {
-                link.remove();
-            }
+                if (index === -1) {
+                    link.remove();
+                } else {
+                    newLinks.splice(index, 1);
+                }
+            });
+
+            documentContext
+                .querySelectorAll('style')
+                .forEach(style => style.remove());
+            pageContext
+                .querySelectorAll('style')
+                .forEach(style => documentContext.append(style));
+
+            return new Promise((resolve, reject) => {
+                let total = newLinks.length;
+
+                newLinks.forEach(link => {
+                    const exists = oldLinks.find(
+                        oldLink => oldLink.href === link.href
+                    );
+
+                    link.addEventListener('load', () => {
+                        --total;
+
+                        if (!total) {
+                            resolve();
+                        }
+                    });
+
+                    link.addEventListener('error', reject);
+
+                    if (!exists) {
+                        documentContext.append(link);
+                    }
+                });
+            });
         });
-
-        newLinks.forEach(link => {
-            const exists = oldLinks.find(oldLink => oldLink.href === link.href);
-
-            if (!exists) {
-                documentContext.append(link);
-            }
-        });
-
-        documentContext.querySelectorAll('style').forEach(style => style.remove());
-        pageContext.querySelectorAll('style').forEach(style => documentContext.append(style));
 
         return this;
     }
@@ -189,39 +227,50 @@ export default class Page {
      * @return {this}
      */
     changeScripts(context = 'head') {
-        const documentContext = this.querySelector(context, document);
-        const pageContext = this.querySelector(context);
-        const oldScripts = Array.from(
-            documentContext.querySelectorAll('script[src]')
-        );
-        const newScripts = Array.from(
-            pageContext.querySelectorAll('script[src]')
-        );
-
-        oldScripts.forEach(script => {
-            const exists = newScripts.find(
-                newScript => newScript.src === script.src
+        this.promise.then(() => {
+            const documentContext = this.querySelector(context, document);
+            const pageContext = this.querySelector(context);
+            const oldScripts = Array.from(
+                documentContext.querySelectorAll('script[src]')
+            );
+            const newScripts = Array.from(
+                pageContext.querySelectorAll('script[src]')
             );
 
-            if (!exists) {
-                script.remove();
-            }
-        });
+            oldScripts.forEach(script => {
+                const index = newScripts.findIndex(
+                    newScript => newScript.src === script.src
+                );
 
-        newScripts.forEach(script => {
-            const exists = oldScripts.find(
-                oldScript => oldScript.src === script.src
-            );
+                if (index === -1) {
+                    script.remove();
+                } else {
+                    newScripts.splice(index, 1);
+                }
+            });
 
-            if (!exists) {
-                const newScript = document.createElement('script');
-                newScript.src = script.src;
-                newScript.type = script.type;
-                newScript.defer = script.defer;
-                newScript.async = script.async;
+            return new Promise((resolve, reject) => {
+                let total = newScripts.length;
 
-                documentContext.append(newScript);
-            }
+                newScripts.forEach(script => {
+                    const scriptElement = document.createElement('script');
+                    scriptElement.src = script.src;
+                    scriptElement.type = script.type;
+                    scriptElement.defer = script.defer;
+                    scriptElement.async = script.async;
+                    scriptElement.addEventListener('load', () => {
+                        --total;
+
+                        if (!total) {
+                            resolve();
+                        }
+                    });
+
+                    scriptElement.addEventListener('error', reject);
+
+                    documentContext.append(scriptElement);
+                });
+            });
         });
 
         return this;
