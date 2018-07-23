@@ -14,6 +14,7 @@ export default class FormLoader extends UrlLoader {
 
         super(url);
 
+        this.html = false;
         this.method = method;
         this.form = form;
     }

@@ -73,8 +73,6 @@ const nav = new Navigator((loader, state, event) =>
     loader.load(state)
         .then(page =>
             page.replaceContent('main') //Replace the <main> element
-                .changeTitle()          //Change the title
-                .changeLocation()       //Change the history location
                 .changeStyles()         //Load the new css styles defined in <head> not present currently
                 .changeScripts()        //Load the new js files defined in <head> not present currently
         )
@@ -102,50 +100,23 @@ nav.submit(form);
 A page instance contains the info about the loaded page. It has the following methods and properties:
 
 ```js
-new Navigator((loader, state, event) => {
-    loader.load(state)
+new Navigator(loader => {
+    loader.load()
         .then(page => {
             page.replaceContent('#content'); //Replace an element in the document by the same element in the page
             page.appendContent('#content');  //Append the children of an element in the page to the same element in the document
             page.removeContent('#content > .unwanted');  //Remove content from the document
-            page.changeTitle();              //Change the current title by the page title
-            page.changeLocation();           //Change the current url by the page url using window.pushState()
-            page.changeLocation(true);       //Change the current url by the page url using window.replaceState()
             page.changeStyles();             //Change the css styles used in the new page (<link rel="stylesheet"> in <head>)
             page.changeScripts();            //Change the js styles used in the new page (<script src="..."> in <head>)
             page.querySelector('p');         //Performs a document.querySelector in the page. Throws an exception on empty result
             page.querySelectorAll('p');      //Performs a document.querySelectorAll in the page. Throws an exception on empty result
 
-            page.url;         //Returns the page url
-            page.dom;         //Returns a HTMLDocument with the content of the page
-            page.title;       //Returns the title of the page
-            page.state;       //Returns an object with data that you can edit/read each time you visit that page
-            page.state.html;  //The html code loaded to be reused. You can remove it reload the html in the next request
+            page.dom;                        //Returns a HTMLDocument with the content of the page
         })
 });
 ```
 
-By default, the `page.state` object includes the property `html` with the html code to be reused. You can remove this value to refresh the cache in the next request. If the new page is loaded by clicking in an `a` element, the data-* values are automatically added to the page state. For example:
-
-```html
-<a href="newpage.html" data-transition="customTransition" data-target="#container">Click me!</a>
-```
-
-```js
-new Navigator((loader, state, event) => {
-    loader.load(state)
-        .then(page => {
-            const transitionName = page.state.transition || 'defaultTransition';
-            const target = page.state.target || '#default-target';
-
-            page.replaceContent(target)
-                .changeTitle()
-                .changeLocation();
-
-            transitions[transitionName](target);
-        })
-});
-```
+By default, the `loader.html` object includes the property `html` with the html code to be reused.
 
 
 ## Demo

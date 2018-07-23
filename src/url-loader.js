@@ -6,6 +6,8 @@ import Page from './page.js';
 export default class UrlLoader {
     constructor(url) {
         this.url = url;
+        this.html = null;
+        this.state = {};
     }
 
     /**
@@ -27,15 +29,15 @@ export default class UrlLoader {
     /**
      * Load the page with the content of the page
      *
-     * @param  {Object} state
-     *
      * @return {Promise}
      */
-    load(state = {}) {
-        if (state.html) {
-            return new Promise(accept =>
-                accept(new Page(this.url, parseHtml(state.html), state))
-            );
+    load(replace = false, state = null) {
+        if (this.html) {
+            return new Promise(accept => {
+                const page = new Page(parseHtml(this.html));
+                this.setState(page.dom.title, replace, state);
+                accept(page);
+            });
         }
 
         return this.fetch()
@@ -48,9 +50,32 @@ export default class UrlLoader {
             })
             .then(res => res.text())
             .then(html => {
-                state.html = html;
-                return new Page(this.url, parseHtml(html), state);
+                if (this.html !== false) {
+                    this.html = html;
+                }
+
+                const page = new Page(parseHtml(html));
+                this.setState(page.dom.title, replace, state);
+                return page;
             });
+    }
+
+    setState(title, replace = false, state = null) {
+        document.title = title;
+
+        if (state) {
+            this.state = state;
+        }
+
+        if (this.url !== document.location.href) {
+            if (replace) {
+                history.replaceState(this.state, null, this.url);
+            } else {
+                history.pushState(this.state, null, this.url);
+            }
+        } else {
+            history.replaceState(this.state, null, this.url);
+        }
     }
 }
 

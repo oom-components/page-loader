@@ -2,15 +2,9 @@
  * Class to handle a loaded page
  */
 export default class Page {
-    constructor(url, dom, state) {
-        this.url = url;
+    constructor(dom) {
         this.dom = dom;
-        this.state = state || {};
         this.promise = Promise.resolve();
-    }
-
-    get title() {
-        return this.dom.title;
     }
 
     /**
@@ -118,43 +112,6 @@ export default class Page {
     }
 
     /**
-     * Change the title of the document with the title of the page
-     *
-     * @return {this}
-     */
-    changeTitle() {
-        this.promise.then(() => {
-            document.title = this.title;
-        });
-
-        return this;
-    }
-
-    /**
-     * Change the location of the document with the url of the page
-     * Use the first argument to replace the state instead push
-     *
-     * @param  {Boolean} replace
-     *
-     * @return {this}
-     */
-    changeLocation(replace = false) {
-        this.promise.then(() => {
-            if (this.url === document.location.href) {
-                return this;
-            }
-
-            if (replace) {
-                history.replaceState(this.state, null, this.url);
-            } else {
-                history.pushState(this.state, null, this.url);
-            }
-        });
-
-        return this;
-    }
-
-    /**
      * Change the css of the current page
      *
      * @param {string} context
@@ -213,6 +170,10 @@ export default class Page {
                         documentContext.append(link);
                     }
                 });
+
+                if (!total) {
+                    resolve();
+                }
             });
         });
 
@@ -231,13 +192,18 @@ export default class Page {
             const documentContext = this.querySelector(context, document);
             const pageContext = this.querySelector(context);
             const oldScripts = Array.from(
-                documentContext.querySelectorAll('script[src]')
+                documentContext.querySelectorAll('script')
             );
             const newScripts = Array.from(
-                pageContext.querySelectorAll('script[src]')
+                pageContext.querySelectorAll('script')
             );
 
             oldScripts.forEach(script => {
+                if (!script.src) {
+                    script.remove();
+                    return;
+                }
+
                 const index = newScripts.findIndex(
                     newScript => newScript.src === script.src
                 );
@@ -254,22 +220,33 @@ export default class Page {
 
                 newScripts.forEach(script => {
                     const scriptElement = document.createElement('script');
-                    scriptElement.src = script.src;
-                    scriptElement.type = script.type;
+
+                    scriptElement.type = script.type || 'text/javascript';
                     scriptElement.defer = script.defer;
                     scriptElement.async = script.async;
-                    scriptElement.addEventListener('load', () => {
-                        --total;
 
-                        if (!total) {
-                            resolve();
-                        }
-                    });
+                    if (script.src) {
+                        scriptElement.src = script.src;
+                        scriptElement.addEventListener('load', () => {
+                            --total;
+
+                            if (!total) {
+                                resolve();
+                            }
+                        });
+                    } else {
+                        scriptElement.innerText = script.innerText;
+                        --total;
+                    }
 
                     scriptElement.addEventListener('error', reject);
 
                     documentContext.append(scriptElement);
                 });
+
+                if (!total) {
+                    resolve();
+                }
             });
         });
 

@@ -41,7 +41,7 @@ export default class Navigator {
     init() {
         delegate('click', 'a', (event, link) => {
             if (this.filters.every(filter => filter(link, link.href))) {
-                this.go(link.href, Object.assign({}, link.dataset), event);
+                this.go(link.href, event);
                 event.preventDefault();
             }
         });
@@ -50,17 +50,14 @@ export default class Navigator {
             const url = resolve(form.action);
 
             if (this.filters.every(filter => filter(form, url))) {
-                this.submit(form, Object.assign({}, form.dataset), event);
+                this.submit(form, event);
                 event.preventDefault();
             }
         });
 
-        window.onpopstate = event =>
-            this.go(
-                document.location.href,
-                Object.assign(event.state || {}),
-                event
-            );
+        window.addEventListener('popstate', event =>
+            this.go(document.location.href, event)
+        );
 
         this.loaders.push(new UrlLoader(document.location.href));
 
@@ -68,15 +65,14 @@ export default class Navigator {
     }
 
     /**
-     * Go to other url. If the url is the previous visited, performs a history.back()
+     * Go to other url.
      *
      * @param  {string} url
-     * @param  {Object} state
      * @param  {Event} event
      *
      * @return {Promise|void}
      */
-    go(url, state = {}, event) {
+    go(url, event) {
         url = resolve(url);
 
         let loader = this.loaders.find(loader => loader.url === url);
@@ -86,34 +82,32 @@ export default class Navigator {
             this.loaders.push(loader);
         }
 
-        return this.load(loader, state, event);
+        return this.load(loader, event);
     }
 
     /**
      * Submit a form via ajax
      *
      * @param  {HTMLFormElement} form
-     * @param  {Object} state
      * @param  {Event} event
      *
      * @return {Promise}
      */
-    submit(form, state = {}, event) {
-        return this.load(new FormLoader(form), state, event);
+    submit(form, event) {
+        return this.load(new FormLoader(form), event);
     }
 
     /**
      * Execute a page loader
      *
      * @param  {UrlLoader|FormLoader} loader
-     * @param  {Object} state
      * @param  {Event} event
      *
      * @return {Promise}
      */
-    load(loader, state = {}, event) {
+    load(loader, event) {
         try {
-            return this.handler(loader, state, event);
+            return this.handler(loader, event);
         } catch (err) {
             console.error(err);
             loader.fallback();
