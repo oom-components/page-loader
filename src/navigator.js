@@ -1,5 +1,4 @@
-import UrlLoader from './url-loader.js';
-import FormLoader from './form-loader.js';
+import { UrlLoader, FormLoader } from './loaders.js';
 
 /**
  * Class to handle the navigation history

@@ -3,7 +3,7 @@ import Page from './page.js';
 /**
  * Class to load an url and generate a page with the result
  */
-export default class UrlLoader {
+export class UrlLoader {
     constructor(url) {
         this.url = url;
         this.html = null;
@@ -76,6 +76,48 @@ export default class UrlLoader {
         } else {
             history.replaceState(this.state, null, this.url);
         }
+    }
+}
+
+/**
+ * Class to submit a form and generate a page with the result
+ */
+export class FormLoader extends UrlLoader {
+    constructor(form) {
+        let url = form.action;
+        const method = (form.method || 'GET').toUpperCase();
+
+        if (method === 'GET') {
+            url += '?' + new URLSearchParams(new FormData(form));
+        }
+
+        super(url);
+
+        this.html = false;
+        this.method = method;
+        this.form = form;
+    }
+
+    /**
+     * Submit natively the form. Used as fallback
+     */
+    fallback() {
+        this.form.submit();
+    }
+
+    /**
+     * Performs a fetch with the form data and return a promise
+     *
+     * @return {Promise}
+     */
+    fetch() {
+        const options = { method: this.method };
+
+        if (this.method === 'POST') {
+            options.body = new FormData(this.form);
+        }
+
+        return fetch(this.url, options);
     }
 }
 

@@ -118,7 +118,7 @@ export default class Page {
      *
      * @return {this}
      */
-    changeStyles(context = 'head') {
+    replaceStyles(context = 'head') {
         this.promise.then(() => {
             const documentContext = this.querySelector(context, document);
             const pageContext = this.querySelector(context);
@@ -187,7 +187,7 @@ export default class Page {
      *
      * @return {this}
      */
-    changeScripts(context = 'head') {
+    replaceScripts(context = 'head') {
         this.promise.then(() => {
             const documentContext = this.querySelector(context, document);
             const pageContext = this.querySelector(context);

@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [UNRELEASED]
+## [Unreleased]
 
 ### Added
 
@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Throwed exceptions on `3xx` responses.
 - The `package.json` is now more browser-friendly using `browser` and `files` keys.
 - `page.changeStyles()` changes also the `<style>` elements.
+- Renamed `page.changeStyles()` to `page.replaceStyles()`.
+- Renamed `page.changeScripts()` to `page.replaceScripts()`.
+- Merged `url-loader.js` and `form-loader.js` to a single file `loaders.js`.
 
 ### Removed
 
@@ -72,8 +75,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 First version with basic features
 
-
-[UNRELEASED]: https://github.com/oom-components/page-loader/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/oom-components/page-loader/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/oom-components/page-loader/compare/v0.2.4...v1.0.0
 [0.2.4]: https://github.com/oom-components/page-loader/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/oom-components/page-loader/compare/v0.2.2...v0.2.3
