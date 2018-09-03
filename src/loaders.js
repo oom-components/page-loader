@@ -84,7 +84,7 @@ export class UrlLoader {
  */
 export class FormLoader extends UrlLoader {
     constructor(form) {
-        let url = form.action;
+        let url = form.action.split('?', 2).shift();
         const method = (form.method || 'GET').toUpperCase();
 
         if (method === 'GET') {
