@@ -8,7 +8,7 @@ Javascript library to load pages using ajax and replace the content in the curre
 * Follows the progressive enhancement strategy: **if javascript fails, the web page keeps working**
 * Built with ES6, so you may need a transpiler for old browser support
 
-Other libraries with a similar purpose are [barba.js](https://github.com/luruke/barba.js/) and [turbolinks](https://github.com/turbolinks/turbolinks). The main aim of page-loader is to be lighter and less magical, in order to be more flexible and customizable.
+Other libraries with a similar purpose are [barba.js](https://github.com/luruke/barba.js/), [turbolinks](https://github.com/turbolinks/turbolinks) or [highway](https://github.com/Dogstudio/highway). The main aim of page-loader is to be lighter and less magical, in order to be more flexible and customizable.
 
 ## Install
 
