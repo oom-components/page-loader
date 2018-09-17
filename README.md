@@ -65,16 +65,15 @@ import Navigator from '@oom/page-loader';
 
 //Create the navigator passing a callback executed to load new pages
 // Loader: The object that load the new page
-// State: The new page state
 // Event: The event that starts the callback (click, submit, etc)
 
-const nav = new Navigator((loader, state, event) => 
+const nav = new Navigator((loader, event) => 
     //Load the page
-    loader.load(state)
+    loader.load()
         .then(page =>
-            page.replaceContent('main') //Replace the <main> element
-                .replaceStyles()         //Load the new css styles defined in <head> not present currently
-                .replaceScripts()        //Load the new js files defined in <head> not present currently
+            page.replaceStyles()                      //Load the new css styles defined in <head> not present currently
+                .then(page => page.replaceScripts())  //Load the new js files defined in <head> not present currently
+                .then(page => replaceContent('main')) //Replace the <main> element
         )
 );
 
@@ -106,8 +105,8 @@ new Navigator(loader => {
             page.replaceContent('#content'); //Replace an element in the document by the same element in the page
             page.appendContent('#content');  //Append the children of an element in the page to the same element in the document
             page.removeContent('#content > .unwanted');  //Remove content from the document
-            page.replaceStyles();             //Change the css styles used in the new page (<link rel="stylesheet"> in <head>)
-            page.replaceScripts();            //Change the js styles used in the new page (<script src="..."> in <head>)
+            page.replaceStyles();             //Change the css styles used in the new page (<link rel="stylesheet"> in <head>). Returns a Promise
+            page.replaceScripts();            //Change the js styles used in the new page (<script src="..."> in <head>). Returns a Promise
             page.querySelector('p');         //Performs a document.querySelector in the page. Throws an exception on empty result
             page.querySelectorAll('p');      //Performs a document.querySelectorAll in the page. Throws an exception on empty result
 

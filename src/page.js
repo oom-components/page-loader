@@ -4,7 +4,6 @@
 export default class Page {
     constructor(dom) {
         this.dom = dom;
-        this.promise = Promise.resolve();
     }
 
     /**
@@ -51,11 +50,9 @@ export default class Page {
      * @return {this}
      */
     removeContent(selector) {
-        this.promise.then(() => {
-            this.querySelectorAll(selector, document).forEach(element =>
-                element.remove()
-            );
-        });
+        this.querySelectorAll(selector, document).forEach(element =>
+            element.remove()
+        );
 
         return this;
     }
@@ -70,15 +67,13 @@ export default class Page {
      * @return {this}
      */
     replaceContent(selector = 'body', callback = undefined) {
-        this.promise.then(() => {
-            const content = this.querySelector(selector);
+        const content = this.querySelector(selector);
 
-            this.querySelector(selector, document).replaceWith(content);
+        this.querySelector(selector, document).replaceWith(content);
 
-            if (typeof callback === 'function') {
-                callback(content);
-            }
-        });
+        if (typeof callback === 'function') {
+            callback(content);
+        }
 
         return this;
     }
@@ -93,20 +88,18 @@ export default class Page {
      * @return {this}
      */
     appendContent(target = 'body', callback = undefined) {
-        this.promise.then(() => {
-            const content = Array.from(this.querySelector(target).childNodes);
-            const fragment = document.createDocumentFragment();
+        const content = Array.from(this.querySelector(target).childNodes);
+        const fragment = document.createDocumentFragment();
 
-            content.forEach(item => fragment.appendChild(item));
+        content.forEach(item => fragment.appendChild(item));
 
-            this.querySelector(target, document).append(fragment);
+        this.querySelector(target, document).append(fragment);
 
-            if (typeof callback === 'function') {
-                content
-                    .filter(item => item.nodeType === Node.ELEMENT_NODE)
-                    .forEach(callback);
-            }
-        });
+        if (typeof callback === 'function') {
+            content
+                .filter(item => item.nodeType === Node.ELEMENT_NODE)
+                .forEach(callback);
+        }
 
         return this;
     }
@@ -116,68 +109,47 @@ export default class Page {
      *
      * @param {string} context
      *
-     * @return {this}
+     * @return Promise
      */
     replaceStyles(context = 'head') {
-        this.promise.then(() => {
-            const documentContext = this.querySelector(context, document);
-            const pageContext = this.querySelector(context);
-            const oldLinks = Array.from(
-                documentContext.querySelectorAll('link[rel="stylesheet"]')
+        const documentContext = this.querySelector(context, document);
+        const pageContext = this.querySelector(context);
+        const oldLinks = Array.from(
+            documentContext.querySelectorAll('link[rel="stylesheet"]')
+        );
+        const newLinks = Array.from(
+            pageContext.querySelectorAll('link[rel="stylesheet"]')
+        );
+
+        oldLinks.forEach(link => {
+            const index = newLinks.findIndex(
+                newLink => newLink.href === link.href
             );
-            const newLinks = Array.from(
-                pageContext.querySelectorAll('link[rel="stylesheet"]')
-            );
 
-            oldLinks.forEach(link => {
-                const index = newLinks.findIndex(
-                    newLink => newLink.href === link.href
-                );
-
-                if (index === -1) {
-                    link.remove();
-                } else {
-                    newLinks.splice(index, 1);
-                }
-            });
-
-            documentContext
-                .querySelectorAll('style')
-                .forEach(style => style.remove());
-            pageContext
-                .querySelectorAll('style')
-                .forEach(style => documentContext.append(style));
-
-            return new Promise((resolve, reject) => {
-                let total = newLinks.length;
-
-                newLinks.forEach(link => {
-                    const exists = oldLinks.find(
-                        oldLink => oldLink.href === link.href
-                    );
-
-                    link.addEventListener('load', () => {
-                        --total;
-
-                        if (!total) {
-                            resolve();
-                        }
-                    });
-
-                    link.addEventListener('error', reject);
-
-                    if (!exists) {
-                        documentContext.append(link);
-                    }
-                });
-
-                if (!total) {
-                    resolve();
-                }
-            });
+            if (index === -1) {
+                link.remove();
+            } else {
+                newLinks.splice(index, 1);
+            }
         });
 
-        return this;
+        documentContext
+            .querySelectorAll('style')
+            .forEach(style => style.remove());
+        pageContext
+            .querySelectorAll('style')
+            .forEach(style => documentContext.append(style));
+
+        return Promise.all(
+            newLinks.map(
+                link =>
+                    new Promise((resolve, reject) => {
+                        link.addEventListener('load', resolve);
+                        link.addEventListener('error', reject);
+                        documentContext.append(link);
+                    })
+            )
+        ).then(() => Promise.resolve(this));
     }
 
     /**
@@ -185,71 +157,56 @@ export default class Page {
      *
      * @param {string} context
      *
-     * @return {this}
+     * @return Promise
      */
     replaceScripts(context = 'head') {
-        this.promise.then(() => {
-            const documentContext = this.querySelector(context, document);
-            const pageContext = this.querySelector(context);
-            const oldScripts = Array.from(
-                documentContext.querySelectorAll('script')
+        const documentContext = this.querySelector(context, document);
+        const pageContext = this.querySelector(context);
+        const oldScripts = Array.from(
+            documentContext.querySelectorAll('script')
+        );
+        const newScripts = Array.from(pageContext.querySelectorAll('script'));
+
+        oldScripts.forEach(script => {
+            if (!script.src) {
+                script.remove();
+                return;
+            }
+
+            const index = newScripts.findIndex(
+                newScript => newScript.src === script.src
             );
-            const newScripts = Array.from(
-                pageContext.querySelectorAll('script')
-            );
 
-            oldScripts.forEach(script => {
-                if (!script.src) {
-                    script.remove();
-                    return;
-                }
-
-                const index = newScripts.findIndex(
-                    newScript => newScript.src === script.src
-                );
-
-                if (index === -1) {
-                    script.remove();
-                } else {
-                    newScripts.splice(index, 1);
-                }
-            });
-
-            return new Promise((resolve, reject) => {
-                let total = newScripts.length;
-
-                newScripts.forEach(script => {
-                    const scriptElement = document.createElement('script');
-
-                    scriptElement.type = script.type || 'text/javascript';
-                    scriptElement.defer = script.defer;
-                    scriptElement.async = script.async;
-
-                    if (script.src) {
-                        scriptElement.src = script.src;
-                        scriptElement.addEventListener('load', () => {
-                            --total;
-
-                            if (!total) {
-                                resolve();
-                            }
-                        });
-                    } else {
-                        scriptElement.innerText = script.innerText;
-                        --total;
-                    }
-
-                    scriptElement.addEventListener('error', reject);
-
-                    documentContext.append(scriptElement);
-                });
-
-                if (!total) {
-                    resolve();
-                }
-            });
+            if (index === -1) {
+                script.remove();
+            } else {
+                newScripts.splice(index, 1);
+            }
         });
 
-        return this;
+        return Promise.all(
+            newScripts.map(
+                script =>
+                    new Promise((resolve, reject) => {
+                        const scriptElement = document.createElement('script');
+
+                        scriptElement.type = script.type || 'text/javascript';
+                        scriptElement.defer = script.defer;
+                        scriptElement.async = script.async;
+
+                        if (script.src) {
+                            scriptElement.src = script.src;
+                            scriptElement.addEventListener('load', resolve);
+                            scriptElement.addEventListener('error', reject);
+                            documentContext.append(scriptElement);
+                            return;
+                        }
+
+                        scriptElement.innerText = script.innerText;
+                        documentContext.append(script);
+                        resolve();
+                    })
+            )
+        ).then(() => Promise.resolve(this));
     }
 }

@@ -27,8 +27,8 @@ describe('Page loader testing', function() {
                     expect(document.title).to.equal('Page 1');
 
                     page.replaceStyles()
-                        .replaceContent('main')
-                        .promise.then(() => {
+                        .then(page => page.replaceContent('main'))
+                        .then(() => {
                             const main = document.querySelector('main');
                             const mainStyles = getComputedStyle(main);
                             const pStyles = getComputedStyle(main.firstElementChild);
@@ -50,8 +50,8 @@ describe('Page loader testing', function() {
                     expect(document.title).to.equal('Page loader tests');
 
                     page.replaceStyles()
-                        .replaceContent('main')
-                        .promise.then(() => {
+                        .then(page => page.replaceContent('main'))
+                        .then(() => {
                             const main = document.querySelector('main');
                             const mainStyles = getComputedStyle(main);
                             const pStyles = getComputedStyle(main.firstElementChild);
