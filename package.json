@@ -1,6 +1,6 @@
 {
   "name": "@oom/page-loader",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Ajax page loader",
   "browser": "src/navigator.js",
   "modules.root": "src",
