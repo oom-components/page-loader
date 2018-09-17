@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [3.0.0] - Unreleased
+## [3.0.0] - 2018-09-17
 
 ### Changed
 
@@ -81,6 +81,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 First version with basic features
 
+[3.0.0]: https://github.com/oom-components/page-loader/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/oom-components/page-loader/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/oom-components/page-loader/compare/v0.2.4...v1.0.0
 [0.2.4]: https://github.com/oom-components/page-loader/compare/v0.2.3...v0.2.4
