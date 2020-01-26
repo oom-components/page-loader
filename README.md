@@ -1,10 +1,10 @@
 # @oom/page-loader
 
-Javascript library to load pages using ajax and replace the content in the current page. It also can change the title, the url, css and javascript. You can use this library to improve the page load speed and create beautiful page transitions. It has the following features:
+Javascript library to load pages using ajax and replace the content in the current page. It changes the title, the url, css and javascript. You can use this library to improve the page load speed and create beautiful page transitions. It has the following features:
 
 * No dependencies
 * Superlight
-* It can be used also with forms, not only links.
+* It can be used with regular links and forms
 * Follows the progressive enhancement strategy: **if javascript fails, the web page keeps working**
 * Built with ES6, so you may need a transpiler for old browser support
 
@@ -63,19 +63,15 @@ Use javascript for a complete experience:
 ```js
 import Navigator from '@oom/page-loader';
 
-//Create the navigator passing a callback executed to load new pages
-// Loader: The object that load the new page
-// Event: The event that starts the callback (click, submit, etc)
-
-const nav = new Navigator((loader, event) => 
+const nav = new Navigator(async (load, event) => {
     //Load the page
-    loader.load()
-        .then(page =>
-            page.replaceStyles()                      //Load the new css styles defined in <head> not present currently
-                .then(page => page.replaceScripts())  //Load the new js files defined in <head> not present currently
-                .then(page => replaceContent('main')) //Replace the <main> element
-        )
-);
+    const page = await load();
+
+    await page.replaceStyles();         //Load the new css styles defined in <head> not present currently
+    await page.replaceScripts();        //Load the new js files defined in <head> not present currently
+    await page.replaceContent('main');  //Replace the <main> element
+    await page.updateState();           //Update the page status (change url, title etc)
+});
 
 //Init the navigation, capturing all clicks in links and form submits
 nav.init();
@@ -99,20 +95,33 @@ nav.submit(form);
 A page instance contains the info about the loaded page. It has the following methods and properties:
 
 ```js
-new Navigator(loader => {
-    loader.load()
-        .then(page => {
-            page.replaceContent('#content'); //Replace an element in the document by the same element in the page
-            page.appendContent('#content');  //Append the children of an element in the page to the same element in the document
-            page.removeContent('#content > .unwanted');  //Remove content from the document
-            page.replaceStyles();             //Change the css styles used in the new page (<link rel="stylesheet"> in <head>). Returns a Promise
-            page.replaceScripts();            //Change the js styles used in the new page (<script src="..."> in <head>). Returns a Promise
-            page.querySelector('p');         //Performs a document.querySelector in the page. Throws an exception on empty result
-            page.querySelectorAll('p');      //Performs a document.querySelectorAll in the page. Throws an exception on empty result
+new Navigator(async load => {
+    const page = await load()
 
-            page.dom;                        //Returns a HTMLDocument with the content of the page
-        })
-});
+    //Replace an element in the document with the same element in the page
+    await page.replaceContent('#content')
+
+    //Append the children of the loaded page to the same element in the document
+    await page.appendContent('#content')
+
+    //Remove content from the document
+    await page.removeContent('#content > .unwanted')
+    
+    //Change the css styles used in the new page (<link rel="stylesheet"> in <head>).
+    await page.replaceStyles()
+
+    //Change the js styles used in the new page (<script src="..."> in <head>).
+    await page.replaceScripts()
+
+    //Performs a document.querySelector in the page. Throws an exception on empty result
+    await page.querySelector('p')
+
+    //Performs a document.querySelectorAll in the page. Throws an exception on empty result
+    await page.querySelectorAll('p')
+
+    page.dom; //HTMLDocument with the content of the page
+    page.url; //The url of the loaded page
+})
 ```
 
 By default, the `loader.html` object includes the property `html` with the html code to be reused.

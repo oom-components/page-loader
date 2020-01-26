@@ -2,7 +2,8 @@
  * Class to handle a loaded page
  */
 export default class Page {
-    constructor(dom) {
+    constructor(url, dom) {
+        this.url = url;
         this.dom = dom;
     }
 
@@ -208,5 +209,24 @@ export default class Page {
                     })
             )
         ).then(() => Promise.resolve(this));
+    }
+
+    /**
+     * Update the state in the history
+     *
+     * @param {Object} state
+     */
+    updateState(state = null) {
+        const title = this.dom.title;
+
+        if (this.url !== document.location.href) {
+            history.pushState(state, title, this.url);
+        } else {
+            history.replaceState(state, title);
+        }
+
+        document.title = title;
+
+        return Promise.resolve(this);
     }
 }

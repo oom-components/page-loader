@@ -1,6 +1,6 @@
 {
   "name": "@oom/page-loader",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Ajax page loader",
   "browser": "src/navigator.js",
   "modules.root": "src",
@@ -30,7 +30,7 @@
   },
   "homepage": "https://github.com/oom-components/page-loader#readme",
   "devDependencies": {
-    "http-server": "^0.11.1",
-    "prettier": "^1.14.2"
+    "http-server": "^0.12.1",
+    "prettier": "^1.19.1"
   }
 }

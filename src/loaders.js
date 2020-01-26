@@ -7,7 +7,6 @@ export class UrlLoader {
     constructor(url) {
         this.url = url;
         this.html = null;
-        this.state = {};
     }
 
     /**
@@ -31,13 +30,12 @@ export class UrlLoader {
      *
      * @return {Promise}
      */
-    load(replace = false, state = null) {
+    load() {
+        //It's cached?
         if (this.html) {
-            return new Promise(accept => {
-                const page = new Page(parseHtml(this.html));
-                this.setState(page.dom.title, replace, state);
-                accept(page);
-            });
+            return new Promise(accept =>
+                accept(new Page(this.url, parseHtml(this.html)))
+            );
         }
 
         return this.fetch()
@@ -54,28 +52,8 @@ export class UrlLoader {
                     this.html = html;
                 }
 
-                const page = new Page(parseHtml(html));
-                this.setState(page.dom.title, replace, state);
-                return page;
+                return new Page(this.url, parseHtml(html));
             });
-    }
-
-    setState(title, replace = false, state = null) {
-        document.title = title;
-
-        if (state) {
-            this.state = state;
-        }
-
-        if (this.url !== document.location.href) {
-            if (replace) {
-                history.replaceState(this.state, null, this.url);
-            } else {
-                history.pushState(this.state, null, this.url);
-            }
-        } else {
-            history.replaceState(this.state, null, this.url);
-        }
     }
 }
 

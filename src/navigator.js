@@ -106,7 +106,7 @@ export default class Navigator {
      */
     load(loader, event) {
         try {
-            return this.handler(loader, event);
+            return this.handler(() => loader.load(), event);
         } catch (err) {
             console.error(err);
             loader.fallback();
