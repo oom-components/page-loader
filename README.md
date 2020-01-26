@@ -119,6 +119,9 @@ new Navigator(async load => {
     //Performs a document.querySelectorAll in the page. Throws an exception on empty result
     await page.querySelectorAll('p')
 
+    //Runs a history.pushState changing the url and title.
+    await page.updateState()
+
     page.dom; //HTMLDocument with the content of the page
     page.url; //The url of the loaded page
 })
