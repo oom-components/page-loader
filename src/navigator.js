@@ -105,12 +105,19 @@ export default class Navigator {
      * @return {Promise}
      */
     load(loader, event) {
-        try {
-            return this.handler(() => loader.load(), event);
-        } catch (err) {
+        const onError = (err) => {
             console.error(err);
             loader.fallback();
+        }
 
+        try {
+            const result = this.handler(() => loader.load(), event);
+
+            if (result instanceof Promise) {
+                return result.catch(onError);
+            }
+        } catch (err) {
+            onError(err);
             return Promise.resolve();
         }
     }

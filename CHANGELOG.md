@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [4.0.1] - Unreleased
 ### Fixed
 - Get the right url for redirected responses
+- Catch promise errors
 
 ## [4.0.0] - 2020-01-26
 ### Changed
