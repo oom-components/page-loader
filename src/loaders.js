@@ -44,6 +44,8 @@ export class UrlLoader {
                     throw new Error(`The request status code is ${res.status}`);
                 }
 
+                this.url = res.url;
+
                 return res;
             })
             .then(res => res.text())

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.0.1] - Unreleased
+### Fixed
+- Get the right url for redirected responses
+
 ## [4.0.0] - 2020-01-26
 ### Changed
 - The loader does not run a pushState anymore. Use `page.updateState()`
@@ -67,7 +71,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2017-06-18
 First version with basic features
 
-[4.0.0]: https://github.com/oom-components/page-loader/compare/v3.0.0...HEAD
+[4.0.1]: https://github.com/oom-components/page-loader/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/oom-components/page-loader/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/oom-components/page-loader/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/oom-components/page-loader/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/oom-components/page-loader/compare/v0.2.4...v1.0.0
