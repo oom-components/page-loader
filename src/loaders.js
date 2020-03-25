@@ -34,13 +34,13 @@ export class UrlLoader {
     load() {
         //It's cached?
         if (this.html) {
-            return new Promise(accept =>
+            return new Promise((accept) =>
                 accept(new Page(this.url, parseHtml(this.html)))
             );
         }
 
         return this.fetch()
-            .then(res => {
+            .then((res) => {
                 if (res.status < 200 || res.status >= 300) {
                     throw new Error(`The request status code is ${res.status}`);
                 }
@@ -49,8 +49,8 @@ export class UrlLoader {
 
                 return res;
             })
-            .then(res => res.text())
-            .then(html => {
+            .then((res) => res.text())
+            .then((html) => {
                 if (this.html !== false) {
                     this.html = html;
                 }

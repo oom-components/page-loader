@@ -1,5 +1,5 @@
 (function () {
-    document.querySelectorAll('body > h1').forEach(h1 => h1.remove());
+    document.querySelectorAll('body > h1').forEach((h1) => h1.remove());
 
     const h1 = document.createElement('h1');
     h1.innerHTML = 'This is the third page with a module';

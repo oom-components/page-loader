@@ -14,7 +14,7 @@ export default class Navigator {
                     `${document.location.protocol}//${document.location.host}`
                 ) === 0,
             (el, url) => url !== document.location.href,
-            el => !el.target
+            (el) => !el.target,
         ];
     }
 
@@ -39,7 +39,7 @@ export default class Navigator {
      */
     init() {
         delegate('click', 'a', (event, link) => {
-            if (this.filters.every(filter => filter(link, link.href))) {
+            if (this.filters.every((filter) => filter(link, link.href))) {
                 this.go(link.href, event);
                 event.preventDefault();
             }
@@ -48,13 +48,13 @@ export default class Navigator {
         delegate('submit', 'form', (event, form) => {
             const url = resolve(form.action);
 
-            if (this.filters.every(filter => filter(form, url))) {
+            if (this.filters.every((filter) => filter(form, url))) {
                 this.submit(form, event);
                 event.preventDefault();
             }
         });
 
-        window.addEventListener('popstate', event =>
+        window.addEventListener('popstate', (event) =>
             this.go(document.location.href, event)
         );
 
@@ -75,7 +75,7 @@ export default class Navigator {
     go(url, event, options) {
         url = resolve(url);
 
-        let loader = this.loaders.find(loader => loader.url === url);
+        let loader = this.loaders.find((loader) => loader.url === url);
 
         if (!loader) {
             loader = new UrlLoader(url, options);
@@ -110,7 +110,7 @@ export default class Navigator {
         const onError = (err) => {
             console.error(err);
             loader.fallback();
-        }
+        };
 
         try {
             const result = this.handler(() => loader.load(), event);
@@ -135,7 +135,7 @@ function resolve(url) {
 function delegate(event, selector, callback) {
     document.addEventListener(
         event,
-        function(event) {
+        function (event) {
             for (
                 let target = event.target;
                 target && target != this;

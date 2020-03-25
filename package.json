@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "start": "http-server -c-1",
-    "prettier": "prettier src/*.js demo/script.js --single-quote --tab-width 4 --write"
+    "prettier": "prettier src/*.js demo/*.js --single-quote --tab-width 4 --write"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,6 @@
   "homepage": "https://github.com/oom-components/page-loader#readme",
   "devDependencies": {
     "http-server": "^0.12.1",
-    "prettier": "^1.19.1"
+    "prettier": "^2.0.2"
   }
 }

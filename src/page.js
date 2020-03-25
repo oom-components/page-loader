@@ -51,7 +51,7 @@ export default class Page {
      * @return {this}
      */
     removeContent(selector) {
-        this.querySelectorAll(selector, document).forEach(element =>
+        this.querySelectorAll(selector, document).forEach((element) =>
             element.remove()
         );
 
@@ -92,13 +92,13 @@ export default class Page {
         const content = Array.from(this.querySelector(target).childNodes);
         const fragment = document.createDocumentFragment();
 
-        content.forEach(item => fragment.appendChild(item));
+        content.forEach((item) => fragment.appendChild(item));
 
         this.querySelector(target, document).append(fragment);
 
         if (typeof callback === 'function') {
             content
-                .filter(item => item.nodeType === Node.ELEMENT_NODE)
+                .filter((item) => item.nodeType === Node.ELEMENT_NODE)
                 .forEach(callback);
         }
 
@@ -122,9 +122,9 @@ export default class Page {
             pageContext.querySelectorAll('link[rel="stylesheet"]')
         );
 
-        oldLinks.forEach(link => {
+        oldLinks.forEach((link) => {
             const index = newLinks.findIndex(
-                newLink => newLink.href === link.href
+                (newLink) => newLink.href === link.href
             );
 
             if (index === -1) {
@@ -136,14 +136,14 @@ export default class Page {
 
         documentContext
             .querySelectorAll('style')
-            .forEach(style => style.remove());
+            .forEach((style) => style.remove());
         pageContext
             .querySelectorAll('style')
-            .forEach(style => documentContext.append(style));
+            .forEach((style) => documentContext.append(style));
 
         return Promise.all(
             newLinks.map(
-                link =>
+                (link) =>
                     new Promise((resolve, reject) => {
                         link.addEventListener('load', resolve);
                         link.addEventListener('error', reject);
@@ -168,14 +168,14 @@ export default class Page {
         );
         const newScripts = Array.from(pageContext.querySelectorAll('script'));
 
-        oldScripts.forEach(script => {
+        oldScripts.forEach((script) => {
             if (!script.src) {
                 script.remove();
                 return;
             }
 
             const index = newScripts.findIndex(
-                newScript => newScript.src === script.src
+                (newScript) => newScript.src === script.src
             );
 
             if (index === -1) {
@@ -187,7 +187,7 @@ export default class Page {
 
         return Promise.all(
             newScripts.map(
-                script =>
+                (script) =>
                     new Promise((resolve, reject) => {
                         const scriptElement = document.createElement('script');
 
