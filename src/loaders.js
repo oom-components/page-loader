@@ -4,8 +4,9 @@ import Page from './page.js';
  * Class to load an url and generate a page with the result
  */
 export class UrlLoader {
-    constructor(url) {
+    constructor(url, options) {
         this.url = url;
+        this.options = options;
         this.html = null;
     }
 
@@ -15,7 +16,7 @@ export class UrlLoader {
      * @return {Promise}
      */
     fetch() {
-        return fetch(this.url);
+        return fetch(this.url, this.options);
     }
 
     /**
@@ -95,6 +96,10 @@ export class FormLoader extends UrlLoader {
 
         if (this.method === 'POST') {
             options.body = new FormData(this.form);
+        }
+
+        if (this.options) {
+            Object.assign(options, this.options);
         }
 
         return fetch(this.url, options);

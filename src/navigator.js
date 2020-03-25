@@ -68,16 +68,17 @@ export default class Navigator {
      *
      * @param  {string} url
      * @param  {Event} event
+     * @param  {Object} options
      *
-     * @return {Promise|void}
+     * @return {Promise}
      */
-    go(url, event) {
+    go(url, event, options) {
         url = resolve(url);
 
         let loader = this.loaders.find(loader => loader.url === url);
 
         if (!loader) {
-            loader = new UrlLoader(url);
+            loader = new UrlLoader(url, options);
             this.loaders.push(loader);
         }
 
@@ -89,11 +90,12 @@ export default class Navigator {
      *
      * @param  {HTMLFormElement} form
      * @param  {Event} event
+     * @param  {Object} options
      *
      * @return {Promise}
      */
-    submit(form, event) {
-        return this.load(new FormLoader(form), event);
+    submit(form, event, options) {
+        return this.load(new FormLoader(form, options), event);
     }
 
     /**
