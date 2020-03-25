@@ -64,7 +64,7 @@ export class UrlLoader {
  * Class to submit a form and generate a page with the result
  */
 export class FormLoader extends UrlLoader {
-    constructor(form) {
+    constructor(form, options) {
         let url = form.action.split('?', 2).shift();
         const method = (form.method || 'GET').toUpperCase();
 
@@ -72,7 +72,7 @@ export class FormLoader extends UrlLoader {
             url += '?' + new URLSearchParams(new FormData(form));
         }
 
-        super(url);
+        super(url, options);
 
         this.html = false;
         this.method = method;

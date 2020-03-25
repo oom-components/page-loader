@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.1.1] - 2020-03-25
+### Fixed
+- FormLoader `options` argument
+
 ## [4.1.0] - 2020-03-25
 ### Added
 - `navigator.go()` and `navigator.submit()` have a third argument to send options to fetch.
@@ -75,6 +79,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2017-06-18
 First version with basic features
 
+[4.1.1]: https://github.com/oom-components/page-loader/compare/v4.1.0...v4.1.1
 [4.1.0]: https://github.com/oom-components/page-loader/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/oom-components/page-loader/compare/v3.0.0...v4.0.0
 [3.0.0]: https://github.com/oom-components/page-loader/compare/v2.0.0...v3.0.0
