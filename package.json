@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "start": "http-server -c-1",
-    "prettier": "prettier src/*.js demo/*.js --single-quote --tab-width 4 --write"
+    "prettier": "prettier src/*.js demo/*.js --single-quote --tab-width 4 --write --print-width 120"
   },
   "repository": {
     "type": "git",

@@ -13,7 +13,8 @@ export default class Navigator {
                 url.indexOf(
                     `${document.location.protocol}//${document.location.host}`
                 ) === 0,
-            (el, url) => url !== document.location.href,
+            (el, url) =>
+                el.tagName === 'FORM' || url !== document.location.href,
             (el) => !el.target,
         ];
     }
@@ -39,7 +40,13 @@ export default class Navigator {
      */
     init() {
         delegate('click', 'a', (event, link) => {
-            if (this.filters.every((filter) => filter(link, link.href))) {
+            if (
+                !event.shiftKey &&
+                !event.ctrlKey &&
+                !event.altKey &&
+                !event.metaKey &&
+                this.filters.every((filter) => filter(link, link.href))
+            ) {
                 this.go(link.href, event);
                 event.preventDefault();
             }
