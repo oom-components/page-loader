@@ -51,9 +51,7 @@ export default class Page {
      * @return {this}
      */
     removeContent(selector) {
-        this.querySelectorAll(selector, document).forEach((element) =>
-            element.remove()
-        );
+        this.querySelectorAll(selector, document).forEach((element) => element.remove());
 
         return this;
     }
@@ -97,9 +95,7 @@ export default class Page {
         this.querySelector(target, document).append(fragment);
 
         if (typeof callback === 'function') {
-            content
-                .filter((item) => item.nodeType === Node.ELEMENT_NODE)
-                .forEach(callback);
+            content.filter((item) => item.nodeType === Node.ELEMENT_NODE).forEach(callback);
         }
 
         return this;
@@ -115,17 +111,11 @@ export default class Page {
     replaceStyles(context = 'head') {
         const documentContext = this.querySelector(context, document);
         const pageContext = this.querySelector(context);
-        const oldLinks = Array.from(
-            documentContext.querySelectorAll('link[rel="stylesheet"]')
-        );
-        const newLinks = Array.from(
-            pageContext.querySelectorAll('link[rel="stylesheet"]')
-        );
+        const oldLinks = Array.from(documentContext.querySelectorAll('link[rel="stylesheet"]'));
+        const newLinks = Array.from(pageContext.querySelectorAll('link[rel="stylesheet"]'));
 
         oldLinks.forEach((link) => {
-            const index = newLinks.findIndex(
-                (newLink) => newLink.href === link.href
-            );
+            const index = newLinks.findIndex((newLink) => newLink.href === link.href);
 
             if (index === -1) {
                 link.remove();
@@ -134,12 +124,8 @@ export default class Page {
             }
         });
 
-        documentContext
-            .querySelectorAll('style')
-            .forEach((style) => style.remove());
-        pageContext
-            .querySelectorAll('style')
-            .forEach((style) => documentContext.append(style));
+        documentContext.querySelectorAll('style').forEach((style) => style.remove());
+        pageContext.querySelectorAll('style').forEach((style) => documentContext.append(style));
 
         return Promise.all(
             newLinks.map(
@@ -163,9 +149,7 @@ export default class Page {
     replaceScripts(context = 'head') {
         const documentContext = this.querySelector(context, document);
         const pageContext = this.querySelector(context);
-        const oldScripts = Array.from(
-            documentContext.querySelectorAll('script')
-        );
+        const oldScripts = Array.from(documentContext.querySelectorAll('script'));
         const newScripts = Array.from(pageContext.querySelectorAll('script'));
 
         oldScripts.forEach((script) => {
@@ -174,9 +158,7 @@ export default class Page {
                 return;
             }
 
-            const index = newScripts.findIndex(
-                (newScript) => newScript.src === script.src
-            );
+            const index = newScripts.findIndex((newScript) => newScript.src === script.src);
 
             if (index === -1) {
                 script.remove();

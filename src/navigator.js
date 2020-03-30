@@ -8,13 +8,8 @@ export default class Navigator {
         this.loaders = [];
         this.handler = handler;
         this.filters = [
-            (el, url) =>
-                url &&
-                url.indexOf(
-                    `${document.location.protocol}//${document.location.host}`
-                ) === 0,
-            (el, url) =>
-                el.tagName === 'FORM' || url !== document.location.href,
+            (el, url) => url && url.indexOf(`${document.location.protocol}//${document.location.host}`) === 0,
+            (el, url) => el.tagName === 'FORM' || url !== document.location.href,
             (el) => !el.target,
         ];
     }
@@ -61,9 +56,7 @@ export default class Navigator {
             }
         });
 
-        window.addEventListener('popstate', (event) =>
-            this.go(document.location.href, event)
-        );
+        window.addEventListener('popstate', (event) => this.go(document.location.href, event));
 
         this.loaders.push(new UrlLoader(document.location.href));
 
@@ -143,11 +136,7 @@ function delegate(event, selector, callback) {
     document.addEventListener(
         event,
         function (event) {
-            for (
-                let target = event.target;
-                target && target != this;
-                target = target.parentNode
-            ) {
+            for (let target = event.target; target && target != this; target = target.parentNode) {
                 if (target.matches(selector)) {
                     callback.call(target, event, target);
                     break;
