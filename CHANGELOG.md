@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.1.2] - 2020-03-31
+### Fixed
+- Ignore click events combined with `ctrl`, `meta`, `shift` and `alt` keys.
+- Do not ignore submit events if the url is the same than the current location.
+
 ## [4.1.1] - 2020-03-25
 ### Fixed
 - FormLoader `options` argument
@@ -79,6 +84,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2017-06-18
 First version with basic features
 
+[4.1.2]: https://github.com/oom-components/page-loader/compare/v4.1.1...v4.1.2
 [4.1.1]: https://github.com/oom-components/page-loader/compare/v4.1.0...v4.1.1
 [4.1.0]: https://github.com/oom-components/page-loader/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/oom-components/page-loader/compare/v3.0.0...v4.0.0
