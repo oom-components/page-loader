@@ -47,13 +47,40 @@ export default class Navigator {
             }
         });
 
+        let latestBtn = null;
+
+        delegate('click', 'form button,input[type="submit"]', (event, button) => (latestBtn = button));
+
         delegate('submit', 'form', (event, form) => {
-            const url = resolve(form.action);
+            if (latestBtn) {
+                if (!form.contains(latestBtn)) {
+                    latestBtn = null;
+                } else if (latestBtn.formTarget) {
+                    latestBtn = null;
+                    return;
+                }
+            }
+
+            const url = resolve(latestBtn && latestBtn.formAction ? latestBtn.formAction : form.action);
 
             if (this.filters.every((filter) => filter(form, url))) {
-                this.submit(form, event);
+                const options = { url };
+
+                if (latestBtn) {
+                    if (latestBtn.name) {
+                        options.body = new FormData(form);
+                        options.body.append(latestBtn.name, latestBtn.value);
+                    }
+                    if (latestBtn.formMethod) {
+                        options.method = latestBtn.formMethod.toUpperCase();
+                    }
+                }
+
+                this.submit(form, event, options);
                 event.preventDefault();
             }
+
+            latestBtn = null;
         });
 
         window.addEventListener('popstate', (event) => this.go(document.location.href, event));
@@ -72,7 +99,7 @@ export default class Navigator {
      *
      * @return {Promise}
      */
-    go(url, event, options) {
+    go(url, event, options = {}) {
         url = resolve(url);
 
         let loader = this.loaders.find((loader) => loader.url === url);
@@ -94,7 +121,7 @@ export default class Navigator {
      *
      * @return {Promise}
      */
-    submit(form, event, options) {
+    submit(form, event, options = {}) {
         return this.load(new FormLoader(form, options), event);
     }
 

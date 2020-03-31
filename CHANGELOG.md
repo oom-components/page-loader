@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.2.0] - 2020-03-31
+### Added
+- Support for buttons with `formAction` attribute
+- Support for buttons with `formMethod` attribute
+
+### Fixed
+- Ignore submit forms after click on buttons with `formTarget` attribute
+- Append the value of the submitter button on send a form
+
 ## [4.1.2] - 2020-03-31
 ### Fixed
 - Ignore click events combined with `ctrl`, `meta`, `shift` and `alt` keys.
@@ -84,6 +93,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2017-06-18
 First version with basic features
 
+[4.2.0]: https://github.com/oom-components/page-loader/compare/v4.1.2...v4.2.0
 [4.1.2]: https://github.com/oom-components/page-loader/compare/v4.1.1...v4.1.2
 [4.1.1]: https://github.com/oom-components/page-loader/compare/v4.1.0...v4.1.1
 [4.1.0]: https://github.com/oom-components/page-loader/compare/v4.0.0...v4.1.0
