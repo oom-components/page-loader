@@ -36,6 +36,12 @@ export class UrlLoader {
 
                 this.url = res.url;
 
+                //Disable cache
+                const cacheControl = res.headers.get('Cache-Control');
+                if (cacheControl && cacheControl.indexOf('no-cache') !== 1) {
+                    this.html = false;
+                }
+
                 return res;
             })
             .then((res) => res.text())

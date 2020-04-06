@@ -11,6 +11,7 @@ export default class Navigator {
             (el, url) => url && url.indexOf(`${document.location.protocol}//${document.location.host}`) === 0,
             (el, url) => el.tagName === 'FORM' || url !== document.location.href,
             (el) => !el.target,
+            (el) => !el.hasAttribute('download'),
         ];
     }
 
