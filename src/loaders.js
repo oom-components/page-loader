@@ -76,7 +76,7 @@ export class FormLoader extends UrlLoader {
         if (options.method === 'GET') {
             url += '?' + new URLSearchParams(new FormData(form));
         } else if (options.method === 'POST' && !options.body) {
-            options.body = new FormData(this.form);
+            options.body = new FormData(form);
         }
 
         super(url, options);

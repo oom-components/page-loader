@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.2.2] - 2020-04-13
+### Fixed
+- Bug in `FormLoader` accessing to `this` before calling `super()`
+
 ## [4.2.1] - 2020-04-06
 ### Fixed
 - Ignore anchors with `download` attribute
@@ -98,6 +102,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2017-06-18
 First version with basic features
 
+[4.2.2]: https://github.com/oom-components/page-loader/compare/v4.2.1...v4.2.2
 [4.2.1]: https://github.com/oom-components/page-loader/compare/v4.2.0...v4.2.1
 [4.2.0]: https://github.com/oom-components/page-loader/compare/v4.1.2...v4.2.0
 [4.1.2]: https://github.com/oom-components/page-loader/compare/v4.1.1...v4.1.2
