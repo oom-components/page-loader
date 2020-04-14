@@ -62,7 +62,7 @@ export default class Navigator {
                 }
             }
 
-            const url = resolve(latestBtn && latestBtn.formAction ? latestBtn.formAction : form.action);
+            const url = resolve(latestBtn && latestBtn.hasAttribute('formaction') ? latestBtn.formAction : form.action);
 
             if (this.filters.every((filter) => filter(form, url))) {
                 const options = { url };
@@ -72,7 +72,7 @@ export default class Navigator {
                         options.body = new FormData(form);
                         options.body.append(latestBtn.name, latestBtn.value);
                     }
-                    if (latestBtn.formMethod) {
+                    if (latestBtn.hasAttribute('formmethod')) {
                         options.method = latestBtn.formMethod.toUpperCase();
                     }
                 }
