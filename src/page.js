@@ -211,4 +211,18 @@ export default class Page {
 
         return Promise.resolve(this);
     }
+
+    /**
+     * Reset the scroll position
+     */
+    resetScroll() {
+        const element = document.scrollingElement;
+        const value = getComputedStyle(element).scrollBehavior;
+
+        element.style.scrollBehavior = 'auto';
+        element.scrollTop = 0;
+        element.style.scrollBehavior = value;
+
+        return Promise.resolve(this);
+    }
 }

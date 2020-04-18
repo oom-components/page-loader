@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.3.0] - 2020-04-18
+### Added
+- New `page.resetScroll()` function to move the scroll to top
+
+### Fixed
+- Fallback action of `FormLoader`
+- All responses of `FormLoader` are valid (even those returning error responses like `4xx`). This prevent double submits.
+- The loader classes (`UrlLoader` and `FormLoader`) are easier to extend due some logic are moved to the new `validateResponse()` and `responseIsCacheable()` functions.
+
 ## [4.2.3] - 2020-04-14
 ### Fixed
 - Bug detecting `formaction` and `formmethod` attributes

@@ -17,6 +17,18 @@ export class UrlLoader {
         document.location = this.url;
     }
 
+    validateResponse(response) {
+        if (response.status < 200 || response.status >= 300) {
+            throw new Error(`The request status code is ${response.status}`);
+        }
+    }
+
+    responseIsCacheable(response) {
+        const cacheControl = response.headers.get('Cache-Control');
+
+        return !cacheControl || cacheControl.indexOf('no-cache') === -1;
+    }
+
     /**
      * Load the page with the content of the page
      *
@@ -30,15 +42,11 @@ export class UrlLoader {
 
         return fetch(this.url, this.options)
             .then((res) => {
-                if (res.status < 200 || res.status >= 300) {
-                    throw new Error(`The request status code is ${res.status}`);
-                }
+                this.validateResponse(res);
 
                 this.url = res.url;
 
-                //Disable cache
-                const cacheControl = res.headers.get('Cache-Control');
-                if (cacheControl && cacheControl.indexOf('no-cache') !== 1) {
+                if (!this.responseIsCacheable(res)) {
                     this.html = false;
                 }
 
@@ -81,8 +89,15 @@ export class FormLoader extends UrlLoader {
 
         super(url, options);
 
-        //Disable cache
-        this.html = false;
+        this.form = form;
+    }
+
+    validateResponse() {
+        return true;
+    }
+
+    responseIsCacheable() {
+        return false;
     }
 
     /**
