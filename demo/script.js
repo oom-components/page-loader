@@ -7,6 +7,7 @@ const navigator = new Navigator(async (load) => {
     await page.replaceScripts();
     await page.replaceContent('.content');
     await page.updateState();
+    await page.resetScroll();
 
     console.log(`Page changed to "${page.url}"`);
 });

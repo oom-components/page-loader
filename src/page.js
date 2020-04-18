@@ -216,8 +216,20 @@ export default class Page {
      * Reset the scroll position
      */
     resetScroll() {
+        //Go to anchor if exists
+        const anchor = this.url.split('#', 2).pop();
+
+        if (anchor) {
+            const target = document.getElementById(anchor);
+
+            if (target) {
+                target.scrollIntoView();
+                return Promise.resolve(this);
+            }
+        }
+
         const element = document.scrollingElement;
-        const value = getComputedStyle(element).scrollBehavior;
+        const value = element.style.scrollBehavior || '';
 
         element.style.scrollBehavior = 'auto';
         element.scrollTop = 0;

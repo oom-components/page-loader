@@ -5,11 +5,12 @@ import { UrlLoader, FormLoader } from './loaders.js';
  */
 export default class Navigator {
     constructor(handler) {
+        this.url = document.location.href;
         this.loaders = [];
         this.handler = handler;
         this.filters = [
             (el, url) => url && url.indexOf(`${document.location.protocol}//${document.location.host}`) === 0,
-            (el, url) => el.tagName === 'FORM' || url !== document.location.href,
+            (el, url) => el.tagName === 'FORM' || !isAnchor(url),
             (el) => !el.target,
             (el) => !el.hasAttribute('download'),
         ];
@@ -84,7 +85,11 @@ export default class Navigator {
             latestBtn = null;
         });
 
-        window.addEventListener('popstate', (event) => this.go(document.location.href, event));
+        window.addEventListener('popstate', (event) => {
+            if (!isAnchor(this.url)) {
+                this.go(document.location.href, event);
+            }
+        });
 
         this.loaders.push(new UrlLoader(document.location.href));
 
@@ -135,6 +140,8 @@ export default class Navigator {
      * @return {Promise}
      */
     load(loader, event) {
+        this.url = loader.url;
+
         const onError = (err) => {
             console.error(err);
             loader.fallback();
@@ -173,4 +180,8 @@ function delegate(event, selector, callback) {
         },
         true
     );
+}
+
+function isAnchor(url) {
+    return url.split('#', 1).shift() === document.location.href.split('#', 1).shift();
 }

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Fallback action of `FormLoader`
 - All responses of `FormLoader` are valid (even those returning error responses like `4xx`). This prevent double submits.
 - The loader classes (`UrlLoader` and `FormLoader`) are easier to extend due some logic are moved to the new `validateResponse()` and `responseIsCacheable()` functions.
+- Support for anchor navigations.
 
 ## [4.2.3] - 2020-04-14
 ### Fixed
@@ -115,6 +116,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2017-06-18
 First version with basic features
 
+[4.3.0]: https://github.com/oom-components/page-loader/compare/v4.2.3...v4.3.0
 [4.2.3]: https://github.com/oom-components/page-loader/compare/v4.2.2...v4.2.3
 [4.2.2]: https://github.com/oom-components/page-loader/compare/v4.2.1...v4.2.2
 [4.2.1]: https://github.com/oom-components/page-loader/compare/v4.2.0...v4.2.1

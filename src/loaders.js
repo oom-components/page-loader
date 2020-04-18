@@ -44,7 +44,9 @@ export class UrlLoader {
             .then((res) => {
                 this.validateResponse(res);
 
-                this.url = res.url;
+                if (this.url.split('#', 1).shift() !== res.url.split('#', 1).shift()) {
+                    this.url = res.url;
+                }
 
                 if (!this.responseIsCacheable(res)) {
                     this.html = false;

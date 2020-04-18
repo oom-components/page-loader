@@ -1,3 +1,6 @@
+html, body {
+    scroll-behavior: smooth;
+}
 ul.content {
     display: flex;
     flex-wrap: wrap;

@@ -31,6 +31,6 @@
   "homepage": "https://github.com/oom-components/page-loader#readme",
   "devDependencies": {
     "http-server": "^0.12.1",
-    "prettier": "^2.0.2"
+    "prettier": "^2.0.4"
   }
 }
