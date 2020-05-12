@@ -61,7 +61,7 @@ Let's start with the following html code:
 Use javascript for a complete experience:
 
 ```js
-import Navigator from '@oom/page-loader';
+import Navigator from '@oom/page-loader/src/navigator.js';
 
 const nav = new Navigator(async (load, event) => {
     //Load the page
@@ -81,6 +81,9 @@ nav.addFilter(el => !el.classList.contains('no-loader'));
 
 //For example, to disable forms:
 nav.addFilter(el => el.tagName !== 'FORM');
+
+//Subscribe to events
+nav.on('error', err => console.error(err));
 
 //You can go manually to other url when you want
 nav.go('https//example.com/page2.html');
@@ -129,6 +132,29 @@ new Navigator(async load => {
 
 By default, the `loader.html` object includes the property `html` with the html code to be reused.
 
+### Events
+
+- beforeFilter (element, url, [submitter])
+- beforeLoad  (element, url, [submitter])
+- load  (element, loader, event, [submitter])
+- error (error, element, loader, event, [submitter])
+
+
+### Download files
+
+You may want to control the download process of a file:
+
+```js
+import download from '@oom/page-loader/src/download.js';
+
+nav.on('beforeFilter', async (link, url) => {
+    if (link.download) {
+        link.classList.add('downloading');
+        await download(url);
+        link.classList.remove('downloading');
+    }
+})
+```
 
 ## Demo
 

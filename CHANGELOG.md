@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.4.0] - 2020-05-12
+### Added
+- New function `.on()` to add callback for the following events:
+  - beforeFilter: Any click or submit in the document, before filter
+  - beforeLoad: Filtered clicks or submits before load
+  - load: After the new page is loaded
+  - error: After an error
+- The filter functions have a third argument with the emitter (only for forms)
+- New module to handle downloads (links with `download` attribute)
+- New argument to set a `submitter` to `Navigator.submit()` function
+
 ## [4.3.0] - 2020-04-18
 ### Added
 - New `page.resetScroll()` function to move the scroll to top
@@ -116,6 +127,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2017-06-18
 First version with basic features
 
+[4.4.0]: https://github.com/oom-components/page-loader/compare/v4.3.0...v4.4.0
 [4.3.0]: https://github.com/oom-components/page-loader/compare/v4.2.3...v4.3.0
 [4.2.3]: https://github.com/oom-components/page-loader/compare/v4.2.2...v4.2.3
 [4.2.2]: https://github.com/oom-components/page-loader/compare/v4.2.1...v4.2.2
