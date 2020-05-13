@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.5.0] - 2020-05-14
+### Added
+- Ignored elements that have the `data-loader="off"` attribute (or are children of any element with them)
+- Allow to set a handler for downloads
+- Passed the target and submitter elements to the loader handler
+
+### Fixed
+- But with infinite downloads
+
 ## [4.4.0] - 2020-05-12
 ### Added
 - New function `.on()` to add callback for the following events:
@@ -127,6 +136,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2017-06-18
 First version with basic features
 
+[4.5.0]: https://github.com/oom-components/page-loader/compare/v4.4.0...v4.5.0
 [4.4.0]: https://github.com/oom-components/page-loader/compare/v4.3.0...v4.4.0
 [4.3.0]: https://github.com/oom-components/page-loader/compare/v4.2.3...v4.3.0
 [4.2.3]: https://github.com/oom-components/page-loader/compare/v4.2.2...v4.2.3

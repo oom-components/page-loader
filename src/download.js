@@ -17,8 +17,8 @@ export default function download(url, filename) {
             const href = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = href;
+            a.dataset.loader = 'off';
             a.download = getFilename(response) || filename;
-            a.addEventListener('click', (event) => event.stopPropagation());
             document.body.appendChild(a);
             a.click();
             a.remove();

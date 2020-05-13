@@ -1,4 +1,5 @@
 import { UrlLoader, FormLoader } from './loaders.js';
+import download from './download.js';
 
 /**
  * Class to handle the navigation history
@@ -8,6 +9,7 @@ export default class Navigator {
         this.url = document.location.href;
         this.loaders = [];
         this.handler = handler;
+        this.downloadHandler;
         this.events = { beforeFilter: [], beforeLoad: [], load: [], error: [] };
         this.filters = [
             (el, url) => url && url.indexOf(`${document.location.protocol}//${document.location.host}`) === 0,
@@ -15,6 +17,14 @@ export default class Navigator {
             (el, url, submitter) => !el.target && (!submitter || submitter.target),
             (el) => !el.hasAttribute('download'),
         ];
+    }
+
+    /**
+     * Assign a handler to a download action
+     * @param {Function} handler
+     */
+    download(handler) {
+        this.downloadHandler = handler;
     }
 
     /**
@@ -64,15 +74,20 @@ export default class Navigator {
      */
     init() {
         delegate('click', 'a', (event, link) => {
+            if (isIgnored(event, link)) {
+                return;
+            }
+
             if (
-                !event.shiftKey &&
-                !event.ctrlKey &&
-                !event.altKey &&
-                !event.metaKey &&
                 this.trigger('beforeFilter', link, link.href) &&
                 this.filters.every((filter) => filter(link, link.href))
             ) {
                 this.go(link.href, event, link);
+                event.preventDefault();
+            }
+
+            if (link.hasAttribute('download') && this.downloadHandler) {
+                this.downloadHandler(() => download(link.href, link.download), event, link);
                 event.preventDefault();
             }
         });
@@ -106,6 +121,7 @@ export default class Navigator {
             const url = getFormUrl(form, submitter);
 
             if (
+                !isIgnored(event, submitter || form) &&
                 this.trigger('beforeFilter', form, url, submitter) &&
                 this.filters.every((filter) => filter(form, url, submitter))
             ) {
@@ -202,7 +218,7 @@ export default class Navigator {
         }
 
         try {
-            const result = this.handler(() => loader.load(), event);
+            const result = this.handler(() => loader.load(), event, element, submitter);
 
             if (result instanceof Promise) {
                 return result.catch(onError).then(() => this.trigger('beforeLoad', element, loader, event, submitter));
@@ -244,4 +260,13 @@ function isAnchor(url) {
 
 function getFormUrl(form, submitter) {
     return resolve(submitter && submitter.hasAttribute('formaction') ? submitter.formAction : form.action);
+}
+function isIgnored(event, element) {
+    return (
+        event.shiftKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.metaKey ||
+        element.matches('[data-loader="off"], [data-loader="off"] *')
+    );
 }
