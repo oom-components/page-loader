@@ -140,6 +140,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 0.1.0 - 2017-06-18
 First version with basic features
 
+[4.5.1]: https://github.com/oom-components/page-loader/compare/v4.5.0...v4.5.1
 [4.5.0]: https://github.com/oom-components/page-loader/compare/v4.4.0...v4.5.0
 [4.4.0]: https://github.com/oom-components/page-loader/compare/v4.3.0...v4.4.0
 [4.3.0]: https://github.com/oom-components/page-loader/compare/v4.2.3...v4.3.0
