@@ -223,7 +223,7 @@ export default class Navigator {
             if (result instanceof Promise) {
                 return result.catch(onError).then(() => this.trigger('beforeLoad', element, loader, event, submitter));
             } else {
-                this.trigger('beforeLoad', element, loader, event, submitter);
+                this.trigger('load', element, loader, event, submitter);
             }
         } catch (err) {
             onError(err);

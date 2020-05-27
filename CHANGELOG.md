@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [4.5.1] - 2020-05-27
+### Fixed
+- `load` event
+
 ## [4.5.0] - 2020-05-14
 ### Added
 - Ignored elements that have the `data-loader="off"` attribute (or are children of any element with them)
