@@ -8,6 +8,7 @@ export class UrlLoader {
         this.url = url;
         this.options = options;
         this.html = null;
+        this.status = 200;
     }
 
     /**
@@ -17,13 +18,11 @@ export class UrlLoader {
         document.location = this.url;
     }
 
-    validateResponse(response) {
-        if (response.status < 200 || response.status >= 300) {
-            throw new Error(`The request status code is ${response.status}`);
-        }
-    }
-
     responseIsCacheable(response) {
+        if (response.status !== 200) {
+            return false;
+        }
+
         const cacheControl = response.headers.get('Cache-Control');
 
         return !cacheControl || cacheControl.indexOf('no-cache') === -1;
@@ -37,13 +36,11 @@ export class UrlLoader {
     load() {
         //It's cached?
         if (this.html) {
-            return new Promise((accept) => accept(new Page(this.url, parseHtml(this.html))));
+            return new Promise((accept) => accept(new Page(this.url, parseHtml(this.html), this.status)));
         }
 
         return fetch(this.url, this.options)
             .then((res) => {
-                this.validateResponse(res);
-
                 if (this.url.split('#', 1).shift() !== res.url.split('#', 1).shift()) {
                     this.url = res.url;
                 }
@@ -51,6 +48,8 @@ export class UrlLoader {
                 if (!this.responseIsCacheable(res)) {
                     this.html = false;
                 }
+
+                this.status = res.status;
 
                 return res;
             })
@@ -60,7 +59,7 @@ export class UrlLoader {
                     this.html = html;
                 }
 
-                return new Page(this.url, parseHtml(html));
+                return new Page(this.url, parseHtml(html), this.status);
             });
     }
 }
@@ -92,10 +91,6 @@ export class FormLoader extends UrlLoader {
         super(url, options);
 
         this.form = form;
-    }
-
-    validateResponse() {
-        return true;
     }
 
     responseIsCacheable() {

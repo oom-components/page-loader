@@ -71,6 +71,7 @@ const nav = new Navigator(async (load, event) => {
     await page.replaceScripts();        //Load the new js files defined in <head> not present currently
     await page.replaceContent('main');  //Replace the <main> element
     await page.updateState();           //Update the page status (change url, title etc)
+    await page.resetScroll();           //Reset the scroll position
 });
 
 //Init the navigation, capturing all clicks in links and form submits
@@ -138,14 +139,16 @@ const nav = new Navigator(async (load, event, target, submitter) => {
     //Runs a history.pushState changing the url and title.
     await page.updateState()
 
-    page.dom; //HTMLDocument with the content of the page
-    page.url; //The url of the loaded page
+    //Reset the page scroll to top (or to the #target element)
+    await page.resetScroll()
+
+    page.dom;    //HTMLDocument with the content of the page
+    page.url;    //The url of the loaded page
+    page.status; //The http status code of the ajax response
 
     trigger.classList.remove('loading');
 })
 ```
-
-By default, the `loader.html` object includes the property `html` with the html code to be reused.
 
 ### Events
 
@@ -155,14 +158,5 @@ By default, the `loader.html` object includes the property `html` with the html 
 - error (error, element, loader, event, [submitter])
 
 ## Demo
-
-To run the demo, just clone this repository, enter in the directory and execute:
-
-```sh
-npm install
-npm start
-```
-
-You should see something in `http://localhost:8080/`
 
 There's an online demo here: https://oom-components.github.io/page-loader/

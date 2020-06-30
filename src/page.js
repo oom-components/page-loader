@@ -2,9 +2,10 @@
  * Class to handle a loaded page
  */
 export default class Page {
-    constructor(url, dom) {
+    constructor(url, dom, status) {
         this.url = url;
         this.dom = dom;
+        this.status = status;
     }
 
     /**
@@ -229,7 +230,7 @@ export default class Page {
         }
 
         const element = document.scrollingElement;
-        const value = element.style.scrollBehavior || '';
+        const value = element.style.scrollBehavior || null;
 
         element.style.scrollBehavior = 'auto';
         element.scrollTop = 0;

@@ -1,16 +1,12 @@
 {
   "name": "@oom/page-loader",
-  "version": "4.5.1",
+  "version": "4.6.0",
   "description": "Ajax page loader",
   "browser": "src/navigator.js",
   "modules.root": "src",
   "files": [
     "src"
   ],
-  "scripts": {
-    "start": "http-server -c-1",
-    "prettier": "prettier src/*.js demo/*.js --single-quote --tab-width 4 --write --print-width 120"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/oom-components/page-loader.git"
@@ -28,9 +24,5 @@
   "bugs": {
     "url": "https://github.com/oom-components/page-loader/issues"
   },
-  "homepage": "https://github.com/oom-components/page-loader#readme",
-  "devDependencies": {
-    "http-server": "^0.12.3",
-    "prettier": "^2.0.5"
-  }
+  "homepage": "https://github.com/oom-components/page-loader#readme"
 }
