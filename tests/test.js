@@ -1,5 +1,5 @@
 import Navigator from "../src/navigator.js";
-import { UrlLoader, FormLoader } from "../src/loaders.js";
+import { FormLoader, UrlLoader } from "../src/loaders.js";
 
 const expect = chai.expect;
 

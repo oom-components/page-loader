@@ -232,7 +232,7 @@ export default class Page {
      */
   resetScroll() {
     //Go to anchor if exists
-    const anchor = this.url.split("#", 2).pop();
+    const anchor = this.url.split("#", 2)[1];
 
     if (anchor) {
       const target = document.getElementById(anchor);
@@ -245,11 +245,14 @@ export default class Page {
 
     const element = document.scrollingElement;
     const value = element.style.scrollBehavior || null;
-
     element.style.scrollBehavior = "auto";
-    element.scrollTop = 0;
-    element.style.scrollBehavior = value;
 
-    return Promise.resolve(this);
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        element.scrollTop = 0;
+        element.style.scrollBehavior = value;
+        resolve(this);
+      }, 10);
+    });
   }
 }

@@ -1,21 +1,35 @@
 # @oom/page-loader
 
-Javascript library to load pages using ajax and replace the content in the current page. It changes the title, the url, css and javascript. You can use this library to improve the page load speed and create beautiful page transitions. It has the following features:
+Javascript library to load pages using ajax and replace the content in the
+current page. It changes the title, the url, css and javascript. You can use
+this library to improve the page load speed and create beautiful page
+transitions. It has the following features:
 
-* No dependencies
-* Superlight
-* It can be used with regular links and forms
-* Follows the progressive enhancement strategy: **if javascript fails, the web page keeps working**
-* Built with ES6, so you may need a transpiler for old browser support
+- No dependencies
+- Superlight
+- It can be used with regular links and forms
+- Follows the progressive enhancement strategy: **if javascript fails, the web
+  page keeps working**
+- Built with ES6, so you may need a transpiler for old browser support
 
-Other libraries with a similar purpose are [barba.js](https://github.com/luruke/barba.js/), [turbolinks](https://github.com/turbolinks/turbolinks) or [highway](https://github.com/Dogstudio/highway). The main aim of page-loader is to be lighter and less magical, in order to be more flexible and customizable.
+Other libraries with a similar purpose are
+[barba.js](https://github.com/luruke/barba.js/),
+[turbolinks](https://github.com/turbolinks/turbolinks) or
+[highway](https://github.com/Dogstudio/highway). The main aim of page-loader is
+to be lighter and less magical, in order to be more flexible and customizable.
 
 ## Install
 
 Requirements:
 
-* NPM or Yarn to install [the package and the dependencies](https://www.npmjs.com/@oom/page-loader)
-* It uses [the Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) for the http requests, so you can use a [fetch polyfill](https://github.com/github/fetch) and a [Promise polyfill](https://github.com/taylorhakes/promise-polyfill) to have [support for old browsers](https://caniuse.com/#feat=fetch)
+- NPM or Yarn to install
+  [the package and the dependencies](https://www.npmjs.com/@oom/page-loader)
+- It uses
+  [the Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API)
+  for the http requests, so you can use a
+  [fetch polyfill](https://github.com/github/fetch) and a
+  [Promise polyfill](https://github.com/taylorhakes/promise-polyfill) to have
+  [support for old browsers](https://caniuse.com/#feat=fetch)
 
 ```sh
 npm install @oom/page-loader
@@ -61,100 +75,101 @@ Let's start with the following html code:
 Use javascript for a complete experience:
 
 ```js
-import Navigator from './vendors/@oom/page-loader/src/navigator.js';
+import Navigator from "./vendors/@oom/page-loader/src/navigator.js";
 
 const nav = new Navigator(async (load, event) => {
-    //Load the page
-    const page = await load();
+  //Load the page
+  const page = await load();
 
-    await page.replaceStyles();         //Load the new css styles defined in <head> not present currently
-    await page.replaceScripts();        //Load the new js files defined in <head> not present currently
-    await page.replaceContent('main');  //Replace the <main> element
-    await page.updateState();           //Update the page status (change url, title etc)
-    await page.resetScroll();           //Reset the scroll position
+  await page.replaceStyles(); //Load the new css styles defined in <head> not present currently
+  await page.replaceScripts(); //Load the new js files defined in <head> not present currently
+  await page.replaceContent("main"); //Replace the <main> element
+  await page.updateState(); //Update the page status (change url, title etc)
+  await page.resetScroll(); //Reset the scroll position
 });
 
 //Init the navigation, capturing all clicks in links and form submits
 nav.init();
 
 //Optionally, you can filter links and forms to disable this behaviour
-nav.addFilter(el => !el.classList.contains('no-loader'));
+nav.addFilter((el) => !el.classList.contains("no-loader"));
 
 //For example, to disable forms:
-nav.addFilter(el => el.tagName !== 'FORM');
+nav.addFilter((el) => el.tagName !== "FORM");
 
 //Subscribe to events
-nav.on('error', err => console.error(err));
+nav.on("error", (err) => console.error(err));
 
 //You can go manually to other url when you want
-nav.go('https//example.com/page2.html');
+nav.go("https//example.com/page2.html");
 
 //Or submit a form via ajax
-const form = document.getElementById('my-form');
+const form = document.getElementById("my-form");
 nav.submit(form);
 
 //And handle downloads (links with download attribute)
 nav.download(async (download, event, link) => {
-    link.classList.add('downloading');
-    await download();
-    link.classList.remove('downloading');
-})
+  link.classList.add("downloading");
+  await download();
+  link.classList.remove("downloading");
+});
 ```
 
 ### Page
 
-A page instance contains the info about the loaded page. It has the following methods and properties:
+A page instance contains the info about the loaded page. It has the following
+methods and properties:
 
 ```js
 const nav = new Navigator(async (load, event, target, submitter) => {
-    //By clicking a link, the target is the A element
-    //By submitting a form, the target is the form but you can get the submitter element (the button being pressed)
-    const trigger = submitter || target;
+  //By clicking a link, the target is the A element
+  //By submitting a form, the target is the form but you can get the submitter element (the button being pressed)
+  const trigger = submitter || target;
 
-    trigger.classList.add('loading');
+  trigger.classList.add("loading");
 
-    const page = await load()
+  const page = await load();
 
-    //Replace an element in the document with the same element in the page
-    await page.replaceContent('#content')
+  //Replace an element in the document with the same element in the page
+  await page.replaceContent("#content");
 
-    //Append the children of the loaded page to the same element in the document
-    await page.appendContent('#content')
+  //Append the children of the loaded page to the same element in the document
+  await page.appendContent("#content");
 
-    //Remove content from the document
-    await page.removeContent('#content > .unwanted')
-    
-    //Change the css styles used in the new page (<link rel="stylesheet"> in <head>).
-    await page.replaceStyles()
+  //Remove content from the document
+  await page.removeContent("#content > .unwanted");
 
-    //Change the js styles used in the new page (<script src="..."> in <head>).
-    await page.replaceScripts()
+  //Change the css styles used in the new page (<link rel="stylesheet"> in <head>).
+  await page.replaceStyles();
 
-    //Performs a document.querySelector in the page. Throws an exception on empty result
-    await page.querySelector('p')
+  //Change the js styles used in the new page (<script src="..."> in <head>).
+  await page.replaceScripts();
 
-    //Performs a document.querySelectorAll in the page. Throws an exception on empty result
-    await page.querySelectorAll('p')
+  //Performs a document.querySelector in the page. Throws an exception on empty result
+  await page.querySelector("p");
 
-    //Runs a history.pushState changing the url and title.
-    await page.updateState()
+  //Performs a document.querySelectorAll in the page. Throws an exception on empty result
+  await page.querySelectorAll("p");
 
-    //Reset the page scroll to top (or to the #target element)
-    await page.resetScroll()
+  //Runs a history.pushState changing the url and title.
+  await page.updateState();
 
-    page.dom;    //HTMLDocument with the content of the page
-    page.url;    //The url of the loaded page
-    page.status; //The http status code of the ajax response
+  //Reset the page scroll to top (or to the #target element)
+  await page.resetScroll();
 
-    trigger.classList.remove('loading');
-})
+  page.dom; //HTMLDocument with the content of the page
+  page.url; //The url of the loaded page
+  page.status; //The http status code of the ajax response
+
+  trigger.classList.remove("loading");
+});
 ```
 
 ### Events
 
 - beforeFilter (element, url, [submitter])
-- beforeLoad  (element, url, [submitter])
-- load  (element, loader, event, [submitter])
+- beforeLoad (element, url, [submitter])
+- load (element, loader, event, [submitter])
 - error (error, element, loader, event, [submitter])
 
 ## Demo

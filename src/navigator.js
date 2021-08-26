@@ -1,4 +1,4 @@
-import { UrlLoader, FormLoader } from "./loaders.js";
+import { FormLoader, UrlLoader } from "./loaders.js";
 import download from "./download.js";
 
 /**
