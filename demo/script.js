@@ -1,6 +1,6 @@
-import Navigator from "../src/navigator.js";
+import { Navigator } from "../src/navigator.js";
 
-const navigator = new Navigator(async (load) => {
+const transition = async (load) => {
   const page = await load();
 
   await page.replaceStyles();
@@ -10,6 +10,8 @@ const navigator = new Navigator(async (load) => {
   await page.resetScroll();
 
   console.log(`Page changed to "${page.url}"`);
-});
+};
+
+const navigator = new Navigator(transition);
 
 navigator.init();

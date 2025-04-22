@@ -1,31 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8">
     <title>Page loader tests</title>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/5.2.0/mocha.min.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/mocha/5.2.0/mocha.min.css"
+    >
     <style>
-        main {
-            background: yellow;
-        }
-        p {
-            color: blue;
-        }
+      main {
+        background: yellow;
+      }
+      p {
+        color: blue;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div id="mocha"></div>
 
     <main>
-        <p>Page 0 <a href="page1.html"></a></p>
+      <p>Page 0 <a href="page1.html"></a></p>
 
-        <form action="page1.html">
-            <input type="hidden" name="foo" value="bar">
-        </form>
+      <form action="page1.html">
+        <input type="hidden" name="foo" value="bar">
+      </form>
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/5.2.0/mocha.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.1.2/chai.min.js"></script>
     <script src="test.js" type="module"></script>
-</body>
+  </body>
 </html>

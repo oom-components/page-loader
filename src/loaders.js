@@ -12,8 +12,8 @@ export class UrlLoader {
   }
 
   /**
-     * Go natively to the url. Used as fallback
-     */
+   * Go natively to the url. Used as fallback
+   */
   fallback() {
     document.location = this.url;
   }
@@ -29,10 +29,10 @@ export class UrlLoader {
   }
 
   /**
-     * Load the page with the content of the page
-     *
-     * @return {Promise}
-     */
+   * Load the page with the content of the page
+   *
+   * @return {Promise}
+   */
   load() {
     //It's cached?
     if (this.html) {
@@ -100,8 +100,8 @@ export class FormLoader extends UrlLoader {
   }
 
   /**
-     * Submit natively the form. Used as fallback
-     */
+   * Submit natively the form. Used as fallback
+   */
   fallback() {
     this.form.submit();
   }
