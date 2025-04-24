@@ -8,6 +8,7 @@ project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [5.0.0] - Unreleased
 ### Changed
+- Complete refactor with a simpler and more flexible API and modern code.
 - Support for Safari 15.4
 
 ## [4.6.1] - 2021-08-26

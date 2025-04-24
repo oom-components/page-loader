@@ -1,20 +1,14 @@
 /**
  * Class to handle the navigation history
  */
-export class Navigator {
+export class Loader {
   #ignoreFilters = [];
   #handlers = [];
   #url = new URL(document.location.href);
+  #init = {};
+  cache = new Map();
 
-  constructor(handler) {
-    if (typeof handler === "function") {
-      handler = new UrlHandler(handler);
-    }
-
-    if (handler) {
-      this.handle(handler);
-    }
-
+  constructor() {
     // Ignore if the user pressed a modifier key
     this.ignore(({ event }) =>
       event.shiftKey || event.ctrlKey || event.altKey || event.metaKey
@@ -37,15 +31,69 @@ export class Navigator {
 
   /**
    * Add a filter to discard elements.
-   * @param {({event: Event, url: URL, submitter: Element}) => boolean} filter
+   * @param {(state: object) => boolean} filter
    * @returns {void}
    */
   ignore(filter) {
     this.#ignoreFilters.push(filter);
   }
 
-  handle(handler) {
-    this.#handlers.push(handler);
+  links(transform, options) {
+    this.#handlers.push(
+      new UrlHandler(transform, { ...options, cache: this.cache }),
+    );
+
+    if (!this.#init.url) {
+      delegate("click", "a", (event, submitter) => {
+        this.#capture(event, submitter);
+      });
+      this.#init.url = true;
+    }
+  }
+
+  downloads(transform, options) {
+    this.#handlers.push(new DownloadHandler(transform, options));
+
+    if (!this.#init.download) {
+      delegate("click", "a[download]", (event, submitter) => {
+        this.#capture(event, submitter);
+      });
+      this.#init.download = true;
+    }
+  }
+
+  forms(transform, options) {
+    this.#handlers.push(new FormHandler(transform, options));
+
+    if (!this.#init.form) {
+      delegate("submit", "form", (event, submitter) => {
+        this.#capture(event, submitter);
+      });
+      this.#init.form = true;
+    }
+  }
+
+  popstate(transform, options) {
+    this.#handlers.push(
+      new Handler(transform, { ...options, cache: this.cache }),
+    );
+
+    if (!this.#init.popstate) {
+      addEventListener("popstate", (event) => {
+        const state = { event, url: new URL(document.location.href) };
+        const { defaultPrevented } = dispatchEvent(
+          "loader:beforefilter",
+          state,
+        );
+
+        if (!defaultPrevented) {
+          this.go(state);
+          document.location.reload();
+        } else {
+        }
+      });
+      this.#init.popstate = true;
+    }
   }
 
   #capture(event, target) {
@@ -69,32 +117,13 @@ export class Navigator {
   }
 
   /**
-   * Init the navigator, attach the events to capture the history changes
-   *
-   * @return {void}
-   */
-  init() {
-    delegate("click", "a", (event, submitter) => {
-      this.#capture(event, submitter);
-    });
-
-    delegate("submit", "form", (event, form) => {
-      this.#capture(event, submitter);
-    });
-
-    window.addEventListener("popstate", (event) => {
-      // this.go(document.location.href, event);
-    });
-  }
-
-  /**
    * Go to other url.
    *
    * @param {Object} state
    * @return {Promise<void>}
    */
   async go(state) {
-    const { url, event, submitter } = state;
+    const { event } = state;
 
     for (const handler of this.#handlers) {
       if (!handler.matches(state)) {
@@ -102,22 +131,22 @@ export class Navigator {
       }
 
       try {
-        event.preventDefault();
-        await handler.transition(() => handler.load(state));
+        const load = (newState = state) => handler.load(newState);
+        const { defaultPrevented } = dispatchEvent("loader:beforeload", state);
+        if (!defaultPrevented) {
+          event.preventDefault();
+          await handler.transition({ load, ...state });
+          dispatchEvent("loader:loaded", state);
+        }
       } catch (error) {
         handler.fallback(state);
-        dispatchEvent("loader:error", {
-          error,
-          url,
-          event,
-          submitter,
-        });
+        dispatchEvent("loader:error", { error, ...state });
       }
     }
   }
 }
 
-export default Navigator;
+export default Loader;
 
 /**
  * Class to handle a loaded page
@@ -132,7 +161,7 @@ export class Page {
   /**
    * Remove elements in the document
    *
-   * @param  {String} selector
+   * @param  {string} selector
    *
    * @return {void}
    */
@@ -144,8 +173,8 @@ export class Page {
    * Replace an element in the document by an element in the page
    * Optionally, it can execute a callback to the new inserted element
    *
-   * @param  {String} selector
-   * @param  {Function|undefined} callback
+   * @param  {string} selector
+   * @param  {function|undefined} callback
    *
    * @return {void}
    */
@@ -164,7 +193,7 @@ export class Page {
    * Optionally, it can execute a callback for each new inserted elements
    *
    * @param  {string} selector
-   * @param  {Function|undefined} callback
+   * @param  {function|undefined} callback
    *
    * @return {void}
    */
@@ -288,7 +317,7 @@ export class Page {
   /**
    * Update the state in the history
    *
-   * @param {Object} state
+   * @param {object} state
    *
    * @return {void}
    */
@@ -336,42 +365,65 @@ export class Page {
 }
 
 export class Handler {
-  #ignoreFilters = [];
+  #options;
 
-  constructor(transition) {
+  constructor(transition, options = {}) {
     this.transition = transition;
+    this.#options = options;
+    this.#options.ignore ??= [];
+  }
+
+  get options() {
+    return this.#options;
   }
 
   matches(state) {
-    return !this.#ignoreFilters.some((filter) => filter(state));
-  }
-
-  ignore(filter) {
-    this.#ignoreFilters.push(filter);
+    return !this.options.ignore.some((filter) => filter(state));
   }
 }
 
-/** Class to load an url and generate a page with the result */
+/** Handler to load an URL */
 export class UrlHandler extends Handler {
-  #options;
-
   constructor(transition, options) {
-    super(transition);
-    this.#options = options;
+    super(transition, options);
 
     // Accept only links
-    this.ignore(({ submitter }) => submitter.tagName !== "A");
+    this.options.ignore.push(({ submitter }) => submitter?.tagName !== "A");
 
     // Ignore the download attribute
-    this.ignore(({ submitter }) => submitter.hasAttribute("download"));
+    this.options.ignore.push(({ submitter }) =>
+      submitter.hasAttribute("download")
+    );
 
     // Ignore the target attribute
-    this.ignore(({ submitter }) => submitter.hasAttribute("target"));
+    this.options.ignore.push(({ submitter }) =>
+      submitter.hasAttribute("target")
+    );
   }
 
+  /**
+   * @returns {Page}
+   */
   async load({ url }) {
-    const response = await fetch(url, this.#options?.fetch);
+    const key = url.href.split("#", 2)[0];
+
+    if (this.options.cache?.has(key)) {
+      const html = this.options.cache.get(key);
+      return new Page(url.href, parseHtml(html), 200);
+    }
+
+    const init = { ...this.options?.fetch };
+    const response = await fetch(url, init);
     const html = await response.text();
+
+    // Cache the page
+    if (response.ok) {
+      const cacheControl = response.headers.get("Cache-Control");
+
+      if (!cacheControl || cacheControl.indexOf("no-cache") === -1) {
+        this.cache.set(key, html);
+      }
+    }
 
     return new Page(response.url, parseHtml(html), response.status);
   }
@@ -379,8 +431,135 @@ export class UrlHandler extends Handler {
   fallback({ url }) {
     document.location = url;
   }
+}
 
-  async go(url, event) {
+/** Handler to load a popstate event */
+export class PopHandler extends Handler {
+  constructor(transition, options) {
+    super(transition, options);
+
+    // Accept only links
+    this.options.ignore.push(({ event }) => event.name !== "popstate");
+  }
+
+  /**
+   * @returns {Page}
+   */
+  async load({ url }) {
+    const key = url.href.split("#", 2)[0];
+
+    if (this.options.cache?.has(key)) {
+      const html = this.options.cache.get(key);
+      return new Page(url.href, parseHtml(html), 200);
+    }
+
+    const init = { ...this.options?.fetch };
+    const response = await fetch(url, init);
+    const html = await response.text();
+
+    // Cache the page
+    if (response.ok) {
+      const cacheControl = response.headers.get("Cache-Control");
+
+      if (!cacheControl || cacheControl.indexOf("no-cache") === -1) {
+        this.cache.set(key, html);
+      }
+    }
+
+    return new Page(response.url, parseHtml(html), response.status);
+  }
+
+  fallback({ url }) {
+    if (document.location.href === url.href) {
+      document.location.reload();
+    }
+  }
+}
+
+/** Handler to download a file */
+export class DownloadHandler extends Handler {
+  constructor(transition, options) {
+    super(transition, options);
+
+    // Accept only links
+    this.options.ignore.push(({ submitter }) => submitter?.tagName !== "A");
+
+    // Accept only the download attribute
+    this.options.ignore.push(({ submitter }) =>
+      !submitter.hasAttribute("download")
+    );
+  }
+
+  /**
+   * @returns {Page}
+   */
+  async load({ url, submitter }) {
+    const init = { ...this.options?.fetch };
+    const response = await fetch(url, init);
+    const blob = await response.blob();
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = href;
+    a.dataset.loader = "off";
+
+    const matches = response.headers.get("Content-Disposition")?.match(
+      /filename="?([^";]+)/,
+    );
+    a.download = matches?.[1] ?? submitter.download ?? "";
+
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(href);
+
+    return new Page(response.url, null, response.status);
+  }
+
+  fallback({ url }) {
+    document.location = url;
+  }
+}
+
+/**
+ * Handler to submit a form
+ */
+export class FormHandler extends Handler {
+  constructor(transition, options) {
+    super(transition, options);
+
+    // Accept only submit buttons
+    this.options.ignore.push(({ event }) => event.type !== "submit");
+
+    // Ignore if the target attribute is present
+    this.options.ignore.push(({ submitter }) =>
+      submitter.formTarget || submitter.form?.target
+    );
+  }
+
+  /**
+   * @returns {Page}
+   */
+  async load({ url, submitter }) {
+    const form = submitter.form;
+    const init = { ...this.options?.fetch };
+
+    init.method = (submitter.formMethod || form.method || "GET").toUpperCase();
+    const action = new URL(url);
+
+    if (init.method === "GET") {
+      action.search = new URLSearchParams(new FormData(form)).toString();
+    } else {
+      init.body = new FormData(form);
+    }
+
+    const response = await fetch(url, init);
+    const html = await response.text();
+
+    return new Page(response.url, parseHtml(html), response.status);
+  }
+
+  fallback({ event }) {
+    event.target.submit();
   }
 }
 
@@ -398,7 +577,7 @@ function delegate(event, selector, callback) {
 }
 
 function dispatchEvent(type, detail) {
-  const event = new CustomEvent(type, { detail });
+  const event = new CustomEvent(type, { detail, bubbles: true });
   const element = detail.element || document.body;
   element.dispatchEvent(event);
   return event;
@@ -408,7 +587,7 @@ function querySelector(selector, context) {
   const result = context.querySelector(selector);
 
   if (!result) {
-    throw new Error(`Not found the target "${selector}"`);
+    throw new Error(`Target "${selector}" not found`);
   }
 
   return result;
@@ -418,8 +597,16 @@ function querySelectorAll(selector, context) {
   const result = context.querySelectorAll(selector);
 
   if (!result.length) {
-    throw new Error(`Not found the target "${selector}"`);
+    throw new Error(`Target "${selector}" not found`);
   }
 
   return result;
+}
+
+function parseHtml(html) {
+  html = html.trim().replace(/^\<!DOCTYPE html\>/i, "");
+  const doc = document.implementation.createHTMLDocument();
+  doc.documentElement.innerHTML = html;
+
+  return doc;
 }
