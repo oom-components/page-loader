@@ -44,29 +44,32 @@ Let's start with the following html code:
 ```html
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="utf-8">
     <title>Page title</title>
     <link rel="stylesheet" href="styles.css">
     <script src="scripts.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <nav class="menu">
-        <a href="section1.html">Section 1</a>
-        <a href="section2.html">Section 2</a>
-        <a href="section3.html">Section 3</a>
+      <a href="section1.html">Section 1</a>
+      <a href="section2.html">Section 2</a>
+      <a href="section3.html">Section 3</a>
     </nav>
     <main class="content">
-        <h1>This is the first section</h1>
+      <h1>This is the first section</h1>
 
-        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-        consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-        cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-        proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+        occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+        mollit anim id est laborum.
+      </p>
     </main>
-</body>
+  </body>
 </html>
 ```
 
@@ -75,9 +78,17 @@ Let's start with the following html code:
 Use javascript for a complete experience:
 
 ```js
-import Navigator from "./vendors/@oom/page-loader/src/navigator.js";
+import Loader from "./vendors/@oom/page-loader/src/page-loader.js";
 
-const nav = new Navigator(async (load, event) => {
+const loader = new Loader();
+
+// Function to load links
+loader.links(async ({ event, url, submitter, load }) => {
+  console.log(event); // The click event
+  console.log(url); // The URL to the new address
+  console.log(submitter); // The <a> object
+  console.log(load); // Function to load the new page and return a Page instance
+
   //Load the page
   const page = await load();
 
@@ -88,45 +99,81 @@ const nav = new Navigator(async (load, event) => {
   await page.resetScroll(); //Reset the scroll position
 });
 
-//Init the navigation, capturing all clicks in links and form submits
-nav.init();
+// Ignore links containing the .no-loader class
+nav.ignore((el) => el.classList.contains("no-loader"));
+```
 
-//Optionally, you can filter links and forms to disable this behaviour
-nav.addFilter((el) => !el.classList.contains("no-loader"));
+### Forms
 
-//For example, to disable forms:
-nav.addFilter((el) => el.tagName !== "FORM");
+You can also handle form submits:
 
-//Subscribe to events
-nav.on("error", (err) => console.error(err));
+```js
+// Function to load forms
+loader.forms(async ({ event, url, submitter, load }) => {
+  console.log(event); // The submit event
+  console.log(url); // The URL to the new address
+  console.log(submitter); // The pressed <button> element
+  console.log(load); // Function to submit the form and return the new Page
 
-//You can go manually to other url when you want
-nav.go("https//example.com/page2.html");
+  //Submit the form
+  const page = await load();
 
-//Or submit a form via ajax
-const form = document.getElementById("my-form");
-nav.submit(form);
+  await page.replaceStyles(); //Load the new css styles defined in <head> not present currently
+  await page.replaceScripts(); //Load the new js files defined in <head> not present currently
+  await page.replaceContent("main"); //Replace the <main> element
+  await page.updateState(); //Update the page status (change url, title etc)
+  await page.resetScroll(); //Reset the scroll position
+});
+```
 
-//And handle downloads (links with download attribute)
-nav.download(async (download, event, link) => {
-  link.classList.add("downloading");
-  await download();
-  link.classList.remove("downloading");
+### Downloads
+
+Links with the `download` attribute are ignored. But you can register a new
+handler for them:
+
+```js
+// Function to download elements
+loader.downloads(async ({ event, url, submitter, load }) => {
+  console.log(event); // The click event
+  console.log(url); // The URL to the download
+  console.log(submitter); // The pressed <a> element
+  console.log(load); // Function to download the element.
+
+  submitter.innerHTML = "Downloading...";
+
+  //Download the element
+  await load();
+
+  submitter.innerHTML = "Downloaded!";
+});
+```
+
+### Popstate
+
+You can also capture the `popstate` event (when the user click the browser
+native backward/forward button). Note that in this case, the submitter doesn't
+exist:
+
+```js
+nav.popstate(async ({ load, url }) => {
+  const page = await load();
+
+  await page.replaceStyles();
+  await page.replaceScripts();
+  await page.replaceContent(".content");
+  await page.updateState();
+  await page.resetScroll();
 });
 ```
 
 ### Page
 
-A page instance contains the info about the loaded page. It has the following
-methods and properties:
+The `load` function returns a Page instance with info about the loaded page and
+methods to create transitions:
 
 ```js
-const nav = new Navigator(async (load, event, target, submitter) => {
-  //By clicking a link, the target is the A element
-  //By submitting a form, the target is the form but you can get the submitter element (the button being pressed)
-  const trigger = submitter || target;
-
-  trigger.classList.add("loading");
+loader.links(async ({ event, url, submitter, load }) => {
+  submitter.classList.add("loading");
 
   const page = await load();
 
@@ -161,16 +208,28 @@ const nav = new Navigator(async (load, event, target, submitter) => {
   page.url; //The url of the loaded page
   page.status; //The http status code of the ajax response
 
-  trigger.classList.remove("loading");
+  submitter.classList.remove("loading");
 });
 ```
 
 ### Events
 
-- beforeFilter (element, url, [submitter])
-- beforeLoad (element, url, [submitter])
-- load (element, loader, event, [submitter])
-- error (error, element, loader, event, [submitter])
+This library triggers the following custom events:
+
+- "loader:beforefilter"
+- "loader:beforeload"
+- "loader:loaded"
+- "loader:error"
+
+```js
+// Add the ?ajax=true param to the URL before load it:
+document.addEventListener("loader:beforeload", (event) => {
+  const { url, submitter } = event.detail;
+
+  console.log(`Preparing to load: ${url}`, submitter);
+  url.searchParams.set("ajax", "true");
+});
+```
 
 ## Demo
 
