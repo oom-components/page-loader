@@ -6,6 +6,7 @@ export class Loader {
   #handlers = [];
   #url = new URL(document.location.href);
   #init = {};
+  #transitioning = false;
   cache = new Map();
 
   constructor() {
@@ -19,11 +20,6 @@ export class Loader {
 
     // Ignore if the URL is from a different origin
     this.ignore(({ url }) => url.origin !== this.#url.origin);
-
-    // Ignore if the URL is the same (only the hash changed)
-    this.ignore(({ url }) =>
-      url.href.split("#", 1).shift() === this.#url.href.split("#", 1).shift()
-    );
 
     // Ignore if the data-loader="off" attribute is set
     this.ignore(({ submitter }) => !!submitter.closest('[data-loader="off"]'));
@@ -75,11 +71,14 @@ export class Loader {
 
   popstate(transform, options) {
     this.#handlers.push(
-      new Handler(transform, { ...options, cache: this.cache }),
+      new PopHandler(transform, { ...options, cache: this.cache }),
     );
 
     if (!this.#init.popstate) {
       addEventListener("popstate", (event) => {
+        if (this.#transitioning) {
+          return;
+        }
         const state = { event, url: new URL(document.location.href) };
         const { defaultPrevented } = dispatchEvent(
           "loader:beforefilter",
@@ -88,8 +87,8 @@ export class Loader {
 
         if (!defaultPrevented) {
           this.go(state);
-          document.location.reload();
         } else {
+          document.location.reload();
         }
       });
       this.#init.popstate = true;
@@ -124,7 +123,7 @@ export class Loader {
    */
   async go(state) {
     const { event } = state;
-
+    this.#transitioning = true;
     for (const handler of this.#handlers) {
       if (!handler.matches(state)) {
         continue;
@@ -139,10 +138,13 @@ export class Loader {
           dispatchEvent("loader:loaded", state);
         }
       } catch (error) {
-        handler.fallback(state);
         dispatchEvent("loader:error", { error, ...state });
+        handler.fallback(state);
       }
     }
+
+    this.#url = new URL(document.location.href);
+    this.#transitioning = false;
   }
 }
 
@@ -390,6 +392,9 @@ export class UrlHandler extends Handler {
     // Accept only links
     this.options.ignore.push(({ submitter }) => submitter?.tagName !== "A");
 
+    // Ignore anchor-only changes
+    this.options.ignore.push(({ url }) => isSameUrl(url));
+
     // Ignore the download attribute
     this.options.ignore.push(({ submitter }) =>
       submitter.hasAttribute("download")
@@ -421,7 +426,7 @@ export class UrlHandler extends Handler {
       const cacheControl = response.headers.get("Cache-Control");
 
       if (!cacheControl || cacheControl.indexOf("no-cache") === -1) {
-        this.cache.set(key, html);
+        this.options.cache.set(key, html);
       }
     }
 
@@ -438,8 +443,8 @@ export class PopHandler extends Handler {
   constructor(transition, options) {
     super(transition, options);
 
-    // Accept only links
-    this.options.ignore.push(({ event }) => event.name !== "popstate");
+    // Accept only popstate events
+    this.options.ignore.push(({ event }) => event.type !== "popstate");
   }
 
   /**
@@ -462,7 +467,7 @@ export class PopHandler extends Handler {
       const cacheControl = response.headers.get("Cache-Control");
 
       if (!cacheControl || cacheControl.indexOf("no-cache") === -1) {
-        this.cache.set(key, html);
+        this.options.cache.set(key, html);
       }
     }
 
@@ -609,4 +614,8 @@ function parseHtml(html) {
   doc.documentElement.innerHTML = html;
 
   return doc;
+}
+
+function isSameUrl(url) {
+  return url.href.split("#", 2)[0] === document.location.href.split("#", 2)[0];
 }
