@@ -22,7 +22,37 @@ export class Loader {
     this.ignore(({ url }) => url.origin !== this.#url.origin);
 
     // Ignore if the data-loader="off" attribute is set
-    this.ignore(({ submitter }) => !!submitter.closest('[data-loader="off"]'));
+    this.ignore(({ submitter }) => !!submitter?.closest('[data-loader="off"]'));
+
+    // Capture the popstate event
+    addEventListener("popstate", (event) => {
+      if (this.#transitioning) {
+        return;
+      }
+
+      const state = { event, url: new URL(document.location.href) };
+
+      if (this.#ignoreFilters.some((filter) => filter(state))) {
+        return;
+      }
+
+      const { defaultPrevented } = dispatchEvent("loader:beforefilter", state);
+
+      if (!defaultPrevented) {
+        const handler = this.#handlers.find((handler) =>
+          handler.matches(state)
+        );
+
+        if (handler) {
+          this.#handle(state, handler);
+        } else if (!isSameUrl(state.url.href, this.#url.href)) {
+          document.location.reload();
+        } else {
+          this.#url = new URL(document.location.href);
+          resetScroll(this.#url);
+        }
+      }
+    });
   }
 
   /**
@@ -73,29 +103,13 @@ export class Loader {
     this.#handlers.push(
       new PopHandler(transform, { ...options, cache: this.cache }),
     );
-
-    if (!this.#init.popstate) {
-      addEventListener("popstate", (event) => {
-        if (this.#transitioning) {
-          return;
-        }
-        const state = { event, url: new URL(document.location.href) };
-        const { defaultPrevented } = dispatchEvent(
-          "loader:beforefilter",
-          state,
-        );
-
-        if (!defaultPrevented) {
-          this.go(state);
-        } else {
-          document.location.reload();
-        }
-      });
-      this.#init.popstate = true;
-    }
   }
 
   #capture(event, target) {
+    if (this.#transitioning) {
+      return;
+    }
+
     const submitter = target.tagName === "FORM" ? event.submitter : target;
 
     const url = target.tagName === "FORM"
@@ -111,7 +125,13 @@ export class Loader {
     const { defaultPrevented } = dispatchEvent("loader:beforefilter", state);
 
     if (!defaultPrevented) {
-      this.go(state);
+      const handler = this.#handlers.find((handler) => handler.matches(state));
+
+      if (handler) {
+        this.#handle(state, handler);
+      } else {
+        this.#url = new URL(document.location.href);
+      }
     }
   }
 
@@ -121,26 +141,22 @@ export class Loader {
    * @param {Object} state
    * @return {Promise<void>}
    */
-  async go(state) {
+  async #handle(state, handler) {
     const { event } = state;
     this.#transitioning = true;
-    for (const handler of this.#handlers) {
-      if (!handler.matches(state)) {
-        continue;
-      }
 
-      try {
-        const load = (newState = state) => handler.load(newState);
-        const { defaultPrevented } = dispatchEvent("loader:beforeload", state);
-        if (!defaultPrevented) {
-          event.preventDefault();
-          await handler.transition({ load, ...state });
-          dispatchEvent("loader:loaded", state);
-        }
-      } catch (error) {
-        dispatchEvent("loader:error", { error, ...state });
-        handler.fallback(state);
+    try {
+      const load = (newState = state) => handler.load(newState);
+      const { defaultPrevented } = dispatchEvent("loader:beforeload", state);
+      if (!defaultPrevented) {
+        event.preventDefault();
+        await handler.transition({ load, ...state });
+        dispatchEvent("loader:loaded", state);
       }
+    } catch (error) {
+      console.error(error);
+      dispatchEvent("loader:error", { error, ...state });
+      handler.fallback(state);
     }
 
     this.#url = new URL(document.location.href);
@@ -232,7 +248,9 @@ export class Page {
     );
 
     oldLinks.forEach((link) => {
-      const index = newLinks.findIndex((newLink) => newLink.href === link.href);
+      const index = newLinks.findIndex((newLink) =>
+        isSameUrl(link.href, new URL(newLink.href, this.url).href)
+      );
 
       if (index === -1) {
         link.remove();
@@ -280,7 +298,7 @@ export class Page {
       }
 
       const index = newScripts.findIndex((newScript) =>
-        newScript.src === script.src
+        isSameUrl(script.src, new URL(newScript.src, this.url).href)
       );
 
       if (index === -1) {
@@ -326,10 +344,8 @@ export class Page {
   updateState(state = null) {
     const title = this.dom.title;
 
-    if (this.url !== document.location.href) {
-      history.pushState(state, title, this.url);
-    } else {
-      history.replaceState(state, title);
+    if (this.url.href !== document.location.href) {
+      history.pushState(state, title, this.url.href);
     }
 
     document.title = title;
@@ -340,29 +356,7 @@ export class Page {
    * @return {Promise<void>}
    */
   async resetScroll() {
-    //Go to anchor if exists
-    const anchor = this.url.split("#", 2)[1];
-
-    if (anchor) {
-      const target = document.getElementById(anchor);
-
-      if (target) {
-        target.scrollIntoView();
-        return;
-      }
-    }
-
-    const element = document.scrollingElement;
-    const value = element.style.scrollBehavior || null;
-    element.style.scrollBehavior = "auto";
-
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        element.scrollTop = 0;
-        element.style.scrollBehavior = value;
-        resolve(this);
-      }, 10);
-    });
+    await resetScroll(this.url);
   }
 }
 
@@ -393,7 +387,7 @@ export class UrlHandler extends Handler {
     this.options.ignore.push(({ submitter }) => submitter?.tagName !== "A");
 
     // Ignore anchor-only changes
-    this.options.ignore.push(({ url }) => isSameUrl(url));
+    this.options.ignore.push(({ url }) => isSameUrl(url.href));
 
     // Ignore the download attribute
     this.options.ignore.push(({ submitter }) =>
@@ -414,7 +408,7 @@ export class UrlHandler extends Handler {
 
     if (this.options.cache?.has(key)) {
       const html = this.options.cache.get(key);
-      return new Page(url.href, parseHtml(html), 200);
+      return new Page(url, parseHtml(html), 200);
     }
 
     const init = { ...this.options?.fetch };
@@ -430,11 +424,11 @@ export class UrlHandler extends Handler {
       }
     }
 
-    return new Page(response.url, parseHtml(html), response.status);
+    return new Page(new URL(response.url), parseHtml(html), response.status);
   }
 
   fallback({ url }) {
-    document.location = url;
+    document.location = url.href;
   }
 }
 
@@ -455,7 +449,7 @@ export class PopHandler extends Handler {
 
     if (this.options.cache?.has(key)) {
       const html = this.options.cache.get(key);
-      return new Page(url.href, parseHtml(html), 200);
+      return new Page(url, parseHtml(html), 200);
     }
 
     const init = { ...this.options?.fetch };
@@ -471,13 +465,11 @@ export class PopHandler extends Handler {
       }
     }
 
-    return new Page(response.url, parseHtml(html), response.status);
+    return new Page(new URL(response.url), parseHtml(html), response.status);
   }
 
-  fallback({ url }) {
-    if (document.location.href === url.href) {
-      document.location.reload();
-    }
+  fallback() {
+    document.location.reload();
   }
 }
 
@@ -517,7 +509,7 @@ export class DownloadHandler extends Handler {
     a.remove();
     URL.revokeObjectURL(href);
 
-    return new Page(response.url, null, response.status);
+    return new Page(new URL(response.url), null, response.status);
   }
 
   fallback({ url }) {
@@ -560,7 +552,7 @@ export class FormHandler extends Handler {
     const response = await fetch(url, init);
     const html = await response.text();
 
-    return new Page(response.url, parseHtml(html), response.status);
+    return new Page(new URL(response.url), parseHtml(html), response.status);
   }
 
   fallback({ event }) {
@@ -616,6 +608,33 @@ function parseHtml(html) {
   return doc;
 }
 
-function isSameUrl(url) {
-  return url.href.split("#", 2)[0] === document.location.href.split("#", 2)[0];
+/** Check if both urls are the same (ignoring the hash) */
+function isSameUrl(url, currentUrl = document.location.href) {
+  return url.split("#", 2)[0] === currentUrl.split("#", 2)[0];
+}
+
+async function resetScroll(url) {
+  //Go to anchor if exists
+  const anchor = url.hash.substring(1);
+
+  if (anchor) {
+    const target = document.getElementById(anchor);
+
+    if (target) {
+      target.scrollIntoView();
+      return;
+    }
+  }
+
+  const element = document.scrollingElement;
+  const value = element.style.scrollBehavior || null;
+  element.style.scrollBehavior = "auto";
+
+  await new Promise((resolve) => {
+    setTimeout(() => {
+      element.scrollTop = 0;
+      element.style.scrollBehavior = value;
+      resolve(this);
+    }, 10);
+  });
 }
