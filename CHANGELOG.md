@@ -6,10 +6,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this
 project adheres to [Semantic Versioning](http://semver.org/).
 
-## [5.0.0] - Unreleased
+## [5.0.0] - 2025-04-26
 ### Changed
 - Complete refactor with a simpler and more flexible API and modern code.
+- Moved all library to a single file.
+
+### Removed
 - Support for Safari 15.4
+
+### Fixed
+- Lots of bugs, like comparing old and new css/js files, scrolling, etc.
 
 ## [4.6.1] - 2021-08-26
 ### Fixed
@@ -174,7 +180,7 @@ project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.1.0] - 2017-06-18
 First version with basic features
 
-[5.0.0]: https://github.com/oom-components/page-loader/compare/v4.6.1...HEAD
+[5.0.0]: https://github.com/oom-components/page-loader/compare/v4.6.1...v5.0.0
 [4.6.1]: https://github.com/oom-components/page-loader/compare/v4.6.0...v4.6.1
 [4.6.0]: https://github.com/oom-components/page-loader/compare/v4.5.1...v4.6.0
 [4.5.1]: https://github.com/oom-components/page-loader/compare/v4.5.0...v4.5.1

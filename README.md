@@ -205,7 +205,7 @@ loader.links(async ({ event, url, submitter, load }) => {
   await page.resetScroll();
 
   page.dom; //HTMLDocument with the content of the page
-  page.url; //The url of the loaded page
+  page.url; //The URL of the loaded page
   page.status; //The http status code of the ajax response
 
   submitter.classList.remove("loading");
